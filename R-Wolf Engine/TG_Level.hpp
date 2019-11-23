@@ -32,14 +32,25 @@ public:
 	void render() override
 	{
 		clscr(RGBA(0x20, 0x20, 0x20));
+		// Секция UI:
+		
+		// Секция игровой зоны:
 		for (u_short y = 0; y < game->get_n(); y++)
 		{
 			for (u_short x = 0; x < game->get_n(); x++)
 			{
-				ellipse(TWDELLIPSE(p_start + FVECTOR2(x * delta_w, y * delta_h), 5.f, 5.f),
-					typecolors[game->get_stats(x, y).IDC], 1.f);
+				ellipse
+				(
+					TWDELLIPSE
+					(
+						p_start + FVECTOR2(x * delta_w, y * delta_h), 
+						5.f, 5.f
+					),
+					typecolors[game->get_stats(x, y).IDC], 1.f
+				);
 			}
 		}
+		// Секция стандартных элементов движка:
 		drawLagometer();
 		drawCursor();
 		lag->setTimeTo();

@@ -170,13 +170,16 @@ namespace RWGraphics
 		{
 			
 		}
-		~TWDRECT() {
+		~TWDRECT()
+		{
 			memset(this, 0, sizeof(*this));
 		}
-		method height() {
+		method height()
+		{
 			return abs(this->to.y - this->from.y);
 		}
-		method width() {
+		method width()
+		{
 			return abs(this->to.x - this->from.x);
 		}
 		FVECTOR2 from;
@@ -229,7 +232,8 @@ namespace RWGraphics
 		{
 
 		}
-		~NPOLYGON() {
+		~NPOLYGON()
+		{
 			memset(this, 0, sizeof(*this));
 		}
 		unsigned int vertices;
@@ -265,7 +269,8 @@ namespace RWGraphics
 		{
 			
 		}
-		~FONTPROPERTY() {
+		~FONTPROPERTY()
+		{
 			memset(this, 0, sizeof(*this));
 		}
 		LPCWSTR name;
@@ -298,7 +303,8 @@ namespace RWGraphics
 			lastCallMsec(0)
 		{
 			float lo = static_cast<float>(getConfigString(ScreenSize_Y)) - 80.0f;
-			for (int iter = 0; iter < 251; iter++) {
+			for (int iter = 0; iter < 251; iter++)
+			{
 				graphCoord[iter] = FVECTOR2(10.0f + 2.0f * iter, lo);
 			}
 		}
@@ -306,21 +312,26 @@ namespace RWGraphics
 		{
 			memset(this, 0, sizeof(*this));
 		}
-		method setTimeFrom() {
+		method setTimeFrom()
+		{
 			GetSystemTime(&this->sp);
 			this->t.from = sp.wMilliseconds;
 		}
-		method setTimeTo() {
+		method setTimeTo()
+		{
 			GetSystemTime(&this->sp);
 			this->t.to = sp.wMilliseconds;
 		}
-		method getDifference() {
+		method getDifference()
+		{
 			return abs(this->t.to - this->t.from);
 		}
-		method setDifference(int diff = 1) {
+		method setDifference(int diff = 1)
+		{
 			this->t.to += diff;
 		}
-		method setLastCallMsec(int value) {
+		method setLastCallMsec(int value)
+		{
 			this->lastCallMsec = value;
 		}
 		TIME t;
@@ -335,7 +346,7 @@ namespace RWGraphics
 		RW_ERROR() : 
 			errcode(0), 
 			definition(""),
-			header(0),
+			header(""),
 			showMsgBox(0),
 			dropProcess(0),
 			msgBoxType(0)
@@ -394,7 +405,8 @@ namespace RWGraphics
 	{
 		RGBA color;
 		float intensity;
-		
+		FVECTOR2 position;
+		float radius;
 	};
 
 	// Вспомогательный набор функций
@@ -407,12 +419,15 @@ namespace RWGraphics
 	/// -> максимальное количество символов до переноса в одной строке
 	/// </para>
 	/// </summary>
-	method strwidth(wstring in) {
+	method strwidth(wstring in)
+	{
 		LPCWSTR buffer = in.c_str();
 		int maxSymbols = 1, maxSymbolsInRow = 1;
-		for (int i = 0; i < wcslen(buffer); i++) {
+		for (int i = 0; i < wcslen(buffer); i++) 
+		{
 			if (buffer[i] != L'\n') maxSymbolsInRow++;
-			else {
+			else 
+			{
 				if (maxSymbolsInRow > maxSymbols) maxSymbols = maxSymbolsInRow;
 				maxSymbolsInRow = 0;
 			}
@@ -431,10 +446,12 @@ namespace RWGraphics
 	/// -> максимальное количество столбцов
 	/// </para>
 	/// </summary>
-	method strheight(wstring in) {
+	method strheight(wstring in) 
+	{
 		LPCWSTR buffer = in.c_str();
 		int maxSymbols = 1;
-		for (int i = 0; i < wcslen(buffer) - 1; i++) {
+		for (int i = 0; i < wcslen(buffer) - 1; i++) 
+		{
 			if (buffer[i] == L'\n') maxSymbols++;
 		}
 		return maxSymbols;
@@ -451,8 +468,10 @@ namespace RWGraphics
 	/// -> конвертированный в D2D1_COLOR_F тип представления цвета
 	/// </para>
 	/// </summary>
-	method rtod(RGBA color) {
-		return ColorF(
+	method rtod(RGBA color) 
+	{
+		return ColorF
+		(
 			color.red / 255.0f,
 			color.green / 255.0f,
 			color.blue / 255.0f,
@@ -465,8 +484,10 @@ namespace RWGraphics
 	/// Выполняет обратное rtod() преобразование цвета
 	/// </para>
 	/// </summary>
-	method dtor(D2D1_COLOR_F color) {
-		return RGBA(
+	method dtor(D2D1_COLOR_F color) 
+	{
+		return RGBA
+		(
 			color.r * 0xFF,
 			color.g * 0xFF,
 			color.b * 0xFF,
@@ -474,11 +495,13 @@ namespace RWGraphics
 		);
 	}
 
-	method scrwidth() {
+	method scrwidth() 
+	{
 		return static_cast<float>(getConfigString(ScreenSize_X));
 	}
 
-	method scrheight() {
+	method scrheight() 
+	{
 		return static_cast<float>(getConfigString(ScreenSize_Y));
 	}
 	// Вспомогательные пространства имён
@@ -635,11 +658,21 @@ namespace RWGraphics
 	namespace Fonts 
 	{
 		static FONTPROPERTY consolas = FONTPROPERTY();
-		static FONTPROPERTY fixedsys(
+		static FONTPROPERTY fixedsys
+		(
 			L"Fixedsys Excelsior 3.01",
 			16.0f,
 			DWRITE_TEXT_ALIGNMENT_LEADING,
 			DWRITE_FONT_WEIGHT_NORMAL,
+			DWRITE_FONT_STYLE_NORMAL,
+			DWRITE_FONT_STRETCH_NORMAL
+		);
+		static FONTPROPERTY roboto
+		(
+			L"Roboto",
+			14.0f,
+			DWRITE_TEXT_ALIGNMENT_LEADING,
+			DWRITE_FONT_WEIGHT_THIN,
 			DWRITE_FONT_STYLE_NORMAL,
 			DWRITE_FONT_STRETCH_NORMAL
 		);
@@ -680,16 +713,20 @@ namespace RWGraphics
 		debug = D2D1CreateFactory(D2D1_FACTORY_TYPE_MULTI_THREADED, &factory);
 		if (SUCCEEDED(debug)) 
 		{
-			debug = factory->CreateHwndRenderTarget(
+			debug = factory->CreateHwndRenderTarget
+			(
 				RenderTargetProperties(),
-				HwndRenderTargetProperties(
+				HwndRenderTargetProperties
+				(
 					windowHandle,
-					SizeU(
+					SizeU
+					(
 						getConfigString(ScreenSize_X),
 						getConfigString(ScreenSize_Y)
-					)),
-					&renderTarget
-				);
+					)
+				),
+				&renderTarget
+			);
 			if (SUCCEEDED(debug)) 
 			{
 				debug = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(wFactory),
@@ -700,7 +737,7 @@ namespace RWGraphics
 				}
 				else 
 				{
-					auto errorcode = D2D1_CREATE_DWRITEFACTORY_ERROR;
+					auto errorcode = Errcodes::D2D1_CREATE_DWRITEFACTORY_ERROR;
 					string definition = "D2D1_CREATE_DWRITEFACTORY_ERROR: " + to_string(debug);
 					RW_ERROR err(errorcode, definition, 1);
 					exit(errorcode);
@@ -708,7 +745,7 @@ namespace RWGraphics
 			}
 			else 
 			{
-				auto errorcode = D2D1_CREATE_HWNDRENDERTARGET_ERROR;
+				auto errorcode = Errcodes::D2D1_CREATE_HWNDRENDERTARGET_ERROR;
 				string definition = "D2D1_CREATE_HWNDRENDERTARGET_ERROR: " + to_string(debug);
 				RW_ERROR err(errorcode, definition, 1);
 				exit(errorcode);
@@ -716,7 +753,7 @@ namespace RWGraphics
 		}
 		else
 		{
-			auto errorcode = D2D1_CREATE_FACTORY_ERROR;
+			auto errorcode = Errcodes::D2D1_CREATE_FACTORY_ERROR;
 			string definition = "D2D1_CREATE_FACTORY_ERROR: " + to_string(debug);
 			RW_ERROR err(errorcode, definition, 1);
 			exit(errorcode);
@@ -761,7 +798,7 @@ namespace RWGraphics
 		}
 		else 
 		{
-			auto errorcode = D2D1_ENDDRAW_ERROR;
+			auto errorcode = Errcodes::D2D1_ENDDRAW_ERROR;
 			string definition = "D2D1_ENDDRAW_ERROR: " + to_string(debug);
 			RW_ERROR err(errorcode, definition, 1);
 			exit(errorcode);
@@ -789,7 +826,8 @@ namespace RWGraphics
 		debug = renderTarget->CreateSolidColorBrush(rtod(color), &brush);
 		if (SUCCEEDED(debug)) 
 		{
-		renderTarget->DrawLine(
+			renderTarget->DrawLine
+			(
 				Point2F(line.from.x, line.from.y),
 				Point2F(line.to.x, line.to.y),
 				brush,
@@ -799,7 +837,7 @@ namespace RWGraphics
 		}
 		else 
 		{
-			auto errorcode = RGBA_COLOR_ERROR;
+			auto errorcode = Errcodes::RGBA_COLOR_ERROR;
 			string definition = "RGBA_COLOR_ERROR: " + to_string(debug);
 			RW_ERROR err(errorcode, definition, 1);
 			exit(errorcode);
@@ -812,27 +850,24 @@ namespace RWGraphics
 		debug = renderTarget->CreateSolidColorBrush(rtod(color), &brush);
 		if (SUCCEEDED(debug)) 
 		{
-			switch(fill) 
-			{
-			case false:
-				renderTarget->DrawRectangle(
+			if (fill) 
+				renderTarget->DrawRectangle
+				(
 					RectF(rect.from.x, rect.from.y, rect.to.x, rect.to.y),
 					brush,
 					thickness
 				);
-				break;
-			case true:
-				renderTarget->FillRectangle(
+			else
+				renderTarget->FillRectangle
+				(
 					RectF(rect.from.x, rect.from.y, rect.to.x, rect.to.y),
 					brush
 				);
-				break;
-			}
 			brush->Release();
 		}
 		else 
 		{
-			auto errorcode = RGBA_COLOR_ERROR;
+			auto errorcode = Errcodes::RGBA_COLOR_ERROR;
 			string definition = "RGBA_COLOR_ERROR: " + to_string(debug);
 			RW_ERROR err(errorcode, definition, 1);
 			exit(errorcode);
@@ -846,29 +881,33 @@ namespace RWGraphics
 		if (SUCCEEDED(debug)) 
 		{
 			if (fill)
-			{
-				renderTarget->FillEllipse(Ellipse(
-					Point2F(circle.center.x, circle.center.y),
-					circle.radiusX,
-					circle.radiusY),
+				renderTarget->FillEllipse
+				(
+					Ellipse
+					(
+						Point2F(circle.center.x, circle.center.y),
+						circle.radiusX,
+						circle.radiusY
+					),
 					brush
 				);
-			}
 			else
-			{
-				renderTarget->DrawEllipse(Ellipse(
-					Point2F(circle.center.x, circle.center.y),
-					circle.radiusX,
-					circle.radiusY),
+				renderTarget->DrawEllipse
+				(
+					Ellipse
+					(
+						Point2F(circle.center.x, circle.center.y),
+						circle.radiusX,
+						circle.radiusY
+					),
 					brush,
 					thickness
 				);
-			}
 			RELEASE(brush);
 		}
 		else 
 		{
-			auto errorcode = RGBA_COLOR_ERROR;
+			auto errorcode = Errcodes::RGBA_COLOR_ERROR;
 			string definition = "RGBA_COLOR_ERROR: " + to_string(debug);
 			RW_ERROR err(errorcode, definition, 1);
 			exit(errorcode);
@@ -878,12 +917,21 @@ namespace RWGraphics
 	method fade(RGBA color, float percent = 1.0f) 
 	{
 		color.alpha = 0xFF * abs(percent);
-		rect(TWDRECT(FVECTOR2(0.0f, 0.0f), 
-			FVECTOR2(scrwidth(), 
-			scrheight())),
+		rect
+		(
+			TWDRECT
+			(
+				FVECTOR2(0.0f, 0.0f), 
+				FVECTOR2
+				(
+					scrwidth(), 
+					scrheight()
+				)
+			),
 			color,
 			1.0f,
-			true);
+			true
+		);
 	}
 
 	method text(wstring text, FVECTOR2 pos, RGBA color, FONTPROPERTY fp) 
@@ -893,7 +941,8 @@ namespace RWGraphics
 		debug = renderTarget->CreateSolidColorBrush(rtod(color), &brush);
 		if (SUCCEEDED(debug)) 
 		{
-			debug = wFactory->CreateTextFormat(
+			debug = wFactory->CreateTextFormat
+			(
 				fp.name,
 				NULL,
 				fp.weight,
@@ -907,10 +956,15 @@ namespace RWGraphics
 			{
 				debug = idwtf->SetTextAlignment(fp.alignment);
 				if (SUCCEEDED(debug)) {
-					renderTarget->DrawTextA(text.c_str(), text.length(), idwtf,
-						RectF(pos.x, pos.y,
+					renderTarget->DrawTextA
+					(
+						text.c_str(), text.length(), idwtf,
+						RectF
+						(
+							pos.x, pos.y,
 							pos.x + fp.size * strwidth(text),
-							pos.y + fp.size * strheight(text)),
+							pos.y + fp.size * strheight(text)
+						),
 						brush
 					);
 					idwtf->Release();
@@ -918,7 +972,7 @@ namespace RWGraphics
 				}
 				else 
 				{
-					auto errorcode = DWRITE_ALIGNMENT_ERROR;
+					auto errorcode = Errcodes::DWRITE_ALIGNMENT_ERROR;
 					string definition = "DWRITE_ALIGNMENT_ERROR: " + to_string(debug);
 					RW_ERROR err(errorcode, definition, 1);
 					exit(errorcode);
@@ -926,14 +980,14 @@ namespace RWGraphics
 			}
 			else 
 			{
-				auto errorcode = DWRITE_TEXTFORMAT_ERROR;
+				auto errorcode = Errcodes::DWRITE_TEXTFORMAT_ERROR;
 				string definition = "DWRITE_TEXTFORMAT_ERROR: " + to_string(debug);
 				RW_ERROR err(errorcode, definition, 1);
 				exit(errorcode);
 			}
 		}
 		else {
-			auto errorcode = RGBA_COLOR_ERROR;
+			auto errorcode = Errcodes::RGBA_COLOR_ERROR;
 			string definition = "RGBA_COLOR_ERROR: " + to_string(debug);
 			RW_ERROR err(errorcode, definition, 1);
 			exit(errorcode);
@@ -947,13 +1001,9 @@ namespace RWGraphics
 		ID2D1GeometrySink* idgsk;
 		D2D1_FIGURE_BEGIN ddfb;
 		if (fill)
-		{
 			ddfb = D2D1_FIGURE_BEGIN_FILLED;
-		}
 		else
-		{
 			ddfb = D2D1_FIGURE_BEGIN_HOLLOW;
-		}
 		if (SUCCEEDED(debug)) 
 		{
 			debug = factory->CreatePathGeometry(&path);
@@ -962,14 +1012,25 @@ namespace RWGraphics
 				debug = path->Open(&idgsk);
 				if (SUCCEEDED(debug)) 
 				{
-					idgsk->BeginFigure(Point2F(polygon.vertexArray[0].x,
-						polygon.vertexArray[0].y), ddfb);
+					idgsk->BeginFigure
+					(
+						Point2F
+						(
+							polygon.vertexArray[0].x,
+							polygon.vertexArray[0].y
+						), 
+						ddfb
+					);
 					for (int iter = 1; iter < polygon.vertices; iter++) 
 					{
-						idgsk->AddLine(Point2F(
-							polygon.vertexArray[iter].x,
-							polygon.vertexArray[iter].y
-						));
+						idgsk->AddLine
+						(
+							Point2F
+							(
+								polygon.vertexArray[iter].x,
+								polygon.vertexArray[iter].y
+							)
+						);
 					}
 					idgsk->EndFigure(D2D1_FIGURE_END_CLOSED);
 					debug = idgsk->Close();
@@ -989,7 +1050,7 @@ namespace RWGraphics
 					}
 					else 
 					{
-						auto errorcode = ID2D1_GEOMETRYSINK_CLOSE_ERROR;
+						auto errorcode = Errcodes::ID2D1_GEOMETRYSINK_CLOSE_ERROR;
 						string definition = "ID2D1_GEOMETRYSINK_CLOSE_ERROR: " + to_string(debug);
 						RW_ERROR err(errorcode, definition, 1);
 						exit(errorcode);
@@ -997,7 +1058,7 @@ namespace RWGraphics
 				}
 				else 
 				{
-					auto errorcode = ID2D1_GEOMETRYSINK_OPEN_ERROR;
+					auto errorcode = Errcodes::ID2D1_GEOMETRYSINK_OPEN_ERROR;
 					string definition = "ID2D1_GEOMETRYSINK_OPEN_ERROR: " + to_string(debug);
 					RW_ERROR err(errorcode, definition, 1);
 					exit(errorcode);
@@ -1005,7 +1066,7 @@ namespace RWGraphics
 			}
 			else 
 			{
-				auto errorcode = ID2D1_PATHGEOMETRY_ERROR;
+				auto errorcode = Errcodes::ID2D1_PATHGEOMETRY_ERROR;
 				string definition = "ID2D1_PATHGEOMETRY_ERROR: " + to_string(debug);
 				RW_ERROR err(errorcode, definition, 1);
 				exit(errorcode);
@@ -1013,7 +1074,7 @@ namespace RWGraphics
 		}
 		else 
 		{
-			auto errorcode = RGBA_COLOR_ERROR;
+			auto errorcode = Errcodes::RGBA_COLOR_ERROR;
 			string definition = "RGBA_COLOR_ERROR: " + to_string(debug);
 			RW_ERROR err(errorcode, definition, 1);
 			exit(errorcode);
@@ -1048,7 +1109,8 @@ namespace RWGraphics
 
 		if (obj->lastRecordedGraph != 250) 
 		{
-			obj->graphCoord[obj->lastRecordedGraph + 1] = FVECTOR2(10.0f + 2.0f * (obj->lastRecordedGraph + 1), lo - 120.0f / obj->getDifference());
+			obj->graphCoord[obj->lastRecordedGraph + 1] = FVECTOR2
+			(10.0f + 2.0f * (obj->lastRecordedGraph + 1), lo - 120.0f / obj->getDifference());
 			obj->lastRecordedGraph++;
 		}
 		else 
@@ -1059,21 +1121,113 @@ namespace RWGraphics
 
 		for (int iter = 0; iter < 250; iter++) 
 		{
-			line(TWDLINE(
-				FVECTOR2(obj->graphCoord[iter].x,
-					obj->graphCoord[iter].y),
-				FVECTOR2(obj->graphCoord[iter + 1].x,
-					obj->graphCoord[iter + 1].y
-				)),
+			line
+			(
+				TWDLINE
+				(
+					FVECTOR2
+					(
+						obj->graphCoord[iter].x,
+						obj->graphCoord[iter].y
+					),
+					FVECTOR2
+					(
+						obj->graphCoord[iter + 1].x,
+						obj->graphCoord[iter + 1].y
+					)
+				),
 				1.0f,
-				Colors::yellow);
+				Colors::yellow
+			);
 		}
 
-		line(TWDLINE(FVECTOR2(10.0f, lo - 120.0f), FVECTOR2(10.0f, lo)), 1.0f, Colors::lightGray);
-		line(TWDLINE(FVECTOR2(510.0f, lo - 120.0f), FVECTOR2(510.0f, lo)), 1.0f, Colors::lightGray);
-		line(TWDLINE(FVECTOR2(10.0f, lo - 120.0f), FVECTOR2(510.0f, lo - 120.0f)), 2.0f, Colors::yellowGreen);
-		line(TWDLINE(FVECTOR2(10.0f, lo - 60.0f), FVECTOR2(510.0f, lo - 60.0f)), 1.0f, Colors::lightGray);
-		line(TWDLINE(FVECTOR2(10.0f, lo), FVECTOR2(510.0f, lo)), 2.0f, Colors::red);
+		line
+		(
+			TWDLINE
+			(
+				FVECTOR2
+				(
+					10.0f, 
+					lo - 120.0f
+				), 
+				FVECTOR2
+				(
+					10.0f, 
+					lo
+				)
+			), 
+			1.0f, 
+			Colors::lightGray
+		);
+		line
+		(
+			TWDLINE
+			(
+				FVECTOR2
+				(
+					510.0f, 
+					lo - 120.0f
+				), 
+				FVECTOR2
+				(
+					510.0f,
+					lo
+				)
+			), 
+			1.0f,
+			Colors::lightGray
+		);
+		line
+		(
+			TWDLINE
+			(
+				FVECTOR2
+				(
+					10.0f, 
+					lo - 120.0f
+				), 
+				FVECTOR2
+				(
+					510.0f, lo - 120.0f
+				)
+			), 
+			2.0f, 
+			Colors::yellowGreen
+		);
+		line
+		(
+			TWDLINE
+			(
+				FVECTOR2
+				(
+					10.0f, 
+					lo - 60.0f
+				), 
+				FVECTOR2
+				(
+					510.0f, lo - 60.0f
+				)
+			), 
+			1.0f,
+			Colors::lightGray
+		);
+		line
+		(
+			TWDLINE
+			(
+				FVECTOR2
+				(
+					10.0f, 
+					lo
+				), 
+				FVECTOR2
+				(
+					510.0f, lo
+				)
+			), 
+			2.0f, 
+			Colors::red
+		);
 	}
 
 	method lightEffect()
@@ -1090,7 +1244,7 @@ namespace RWGraphics
 			}
 			else
 			{
-				auto errorcode = D2D1_EFFECT_ERROR;
+				auto errorcode = Errcodes::D2D1_EFFECT_ERROR;
 				string definition = "D2D1_EFFECT_ERROR: " + to_string(debug);
 				RW_ERROR err(errorcode, definition, 1);
 				exit(errorcode);
@@ -1098,7 +1252,7 @@ namespace RWGraphics
 		}
 		else
 		{
-			auto errorcode = D2D1_DEVCONTEXT_ERROR;
+			auto errorcode = Errcodes::D2D1_DEVCONTEXT_ERROR;
 			string definition = "D2D1_DEVCONTEXT_ERROR: " + to_string(debug);
 			RW_ERROR err(errorcode, definition, 1);
 			exit(errorcode);
@@ -1115,7 +1269,7 @@ namespace RWGraphics
 		}
 		else
 		{
-			auto errorcode = D2D1_DEVCONTEXT_ERROR;
+			auto errorcode = Errcodes::D2D1_DEVCONTEXT_ERROR;
 			string definition = "D2D1_DEVCONTEXT_ERROR: " + to_string(debug);
 			RW_ERROR err(errorcode, definition, 1);
 			exit(errorcode);
@@ -1133,21 +1287,25 @@ namespace RWGraphics
 			IWICBitmapFrameDecode* wicFrame = NULL;
 			IWICFormatConverter* wicConverter = NULL;
 			// Создание фабрики WIC:
-			debug = CoCreateInstance(
+			debug = CoCreateInstance
+			(
 				CLSID_WICImagingFactory,
 				NULL,
 				CLSCTX_INPROC_SERVER,
 				IID_IWICImagingFactory,
-				(LPVOID*)& wicFactory);
+				(LPVOID*)& wicFactory
+			);
 			if (SUCCEEDED(debug))
 			{
 				// Создание декодера:
-				debug = wicFactory->CreateDecoderFromFilename(
+				debug = wicFactory->CreateDecoderFromFilename
+				(
 					path,
 					NULL,
 					GENERIC_READ,
 					WICDecodeMetadataCacheOnLoad,
-					&wicDecoder);
+					&wicDecoder
+				);
 				if (SUCCEEDED(debug))
 				{
 					// Чтение изображения:
@@ -1159,44 +1317,58 @@ namespace RWGraphics
 						if (SUCCEEDED(debug))
 						{
 							// Настройка конвертёра:
-							debug = wicConverter->Initialize(
+							debug = wicConverter->Initialize
+							(
 								wicFrame,
 								GUID_WICPixelFormat32bppPBGRA,
 								WICBitmapDitherTypeNone,
 								NULL,
 								0.0,
-								WICBitmapPaletteTypeCustom);
+								WICBitmapPaletteTypeCustom
+							);
 							if (SUCCEEDED(debug))
 							{
 								// Конвертация в формат ID2D1Bitmap:
-								debug = RWGraphics::getRenderTarget()->CreateBitmapFromWicBitmap(
+								debug = RWGraphics::getRenderTarget()->CreateBitmapFromWicBitmap
+								(
 									wicConverter,
 									NULL,
-									&bmp);
+									&bmp
+								);
 								if (SUCCEEDED(debug))
 								{
 									// Проверка на видимость:
-									if (
+									if 
+									(
 										pos.x + bmp->GetSize().width > 0 &&
 										pos.y + bmp->GetSize().height > 0 &&
 										pos.x < getConfigString(ScreenSize_X) &&
 										pos.y < getConfigString(ScreenSize_Y)
-										) {
+									)
+									{
 										// Рисование изображения:
-										RWGraphics::getRenderTarget()->DrawBitmap(
+										RWGraphics::getRenderTarget()->DrawBitmap
+										(
 											bmp,
-											RectF(pos.x, pos.y,
-												pos.x + bmp->GetSize().width * size, pos.y + bmp->GetSize().height * size),
+											RectF
+											(
+												pos.x, pos.y,
+												pos.x + bmp->GetSize().width * size,
+												pos.y + bmp->GetSize().height * size
+											),
 											opacity / 255.f,
 											D2D1_BITMAP_INTERPOLATION_MODE::D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR,
-											RectF(0, 0,
-												bmp->GetSize().width, bmp->GetSize().height)
+											RectF
+											(
+												0, 0,
+												bmp->GetSize().width, bmp->GetSize().height
+											)
 										);
 									}
 								}
 								else
 								{
-									auto errorcode = SPRITE_CONVERTER_ERROR;
+									auto errorcode = Errcodes::SPRITE_CONVERTER_ERROR;
 									string definition = "SPRITE_CONVERTER_ERROR: " + to_string(debug);
 									RW_ERROR err(errorcode, definition, 1);
 									exit(errorcode);
@@ -1204,7 +1376,7 @@ namespace RWGraphics
 							}
 							else
 							{
-								auto errorcode = SPRITE_CONVERTER_ERROR;
+								auto errorcode = Errcodes::SPRITE_CONVERTER_ERROR;
 								string definition = "SPRITE_CONVERTER_ERROR: " + to_string(debug);
 								RW_ERROR err(errorcode, definition, 1);
 								exit(errorcode);
@@ -1212,7 +1384,7 @@ namespace RWGraphics
 						}
 						else
 						{
-							auto errorcode = SPRITE_FACTORY_ERROR;
+							auto errorcode = Errcodes::SPRITE_FACTORY_ERROR;
 							string definition = "SPRITE_FACTORY_ERROR: " + to_string(debug);
 							RW_ERROR err(errorcode, definition, 1);
 							exit(errorcode);
@@ -1220,7 +1392,7 @@ namespace RWGraphics
 					}
 					else
 					{
-						auto errorcode = SPRITE_DECODER_ERROR;
+						auto errorcode = Errcodes::SPRITE_DECODER_ERROR;
 						string definition = "SPRITE_DECODER_ERROR: " + to_string(debug);
 						RW_ERROR err(errorcode, definition, 1);
 						exit(errorcode);
@@ -1228,7 +1400,7 @@ namespace RWGraphics
 				}
 				else
 				{
-					auto errorcode = SPRITE_FILENAME_ERROR;
+					auto errorcode = Errcodes::SPRITE_FILENAME_ERROR;
 					string definition = "SPRITE_FILENAME_ERROR: " + to_string(debug);
 					RW_ERROR err(errorcode, definition, 1);
 					exit(errorcode);
@@ -1236,7 +1408,7 @@ namespace RWGraphics
 			}
 			else
 			{
-				auto errorcode = SPRITE_INSTANCE_ERROR;
+				auto errorcode = Errcodes::SPRITE_INSTANCE_ERROR;
 				string definition = "SPRITE_INSTANCE_ERROR: " + to_string(debug);
 				RW_ERROR err(errorcode, definition, 1);
 				exit(errorcode);
@@ -1257,7 +1429,8 @@ namespace RWGraphics
 			{
 				for (int y = 0; y < y_value; y++) 
 				{
-					picture(
+					picture
+					(
 						path,
 						FVECTOR2(pos.x + picSize.x * x,
 							pos.y + picSize.y * y),
@@ -1271,34 +1444,42 @@ namespace RWGraphics
 			HRESULT debug = 0L;
 			if (bmp) return false;
 			IWICImagingFactory* wicFactory = NULL;
-			debug = CoCreateInstance(
+			debug = CoCreateInstance
+			(
 				CLSID_WICImagingFactory,
 				NULL,
 				CLSCTX_INPROC_SERVER,
 				IID_IWICImagingFactory,
-				(LPVOID*)& wicFactory);
+				(LPVOID*)& wicFactory
+			);
 			IWICBitmapDecoder* wicDecoder = NULL;
-			debug = wicFactory->CreateDecoderFromFilename(
+			debug = wicFactory->CreateDecoderFromFilename
+			(
 				path,
 				NULL,
 				GENERIC_READ,
 				WICDecodeMetadataCacheOnLoad,
-				&wicDecoder);
+				&wicDecoder
+			);
 			IWICBitmapFrameDecode* wicFrame = NULL;
 			debug = wicDecoder->GetFrame(0, &wicFrame);
 			IWICFormatConverter* wicConverter = NULL;
 			debug = wicFactory->CreateFormatConverter(&wicConverter);
-			debug = wicConverter->Initialize(
+			debug = wicConverter->Initialize
+			(
 				wicFrame,
 				GUID_WICPixelFormat32bppPBGRA,
 				WICBitmapDitherTypeNone,
 				NULL,
 				0.0,
-				WICBitmapPaletteTypeCustom);
-			debug = RWGraphics::getRenderTarget()->CreateBitmapFromWicBitmap(
+				WICBitmapPaletteTypeCustom
+			);
+			debug = RWGraphics::getRenderTarget()->CreateBitmapFromWicBitmap
+			(
 				wicConverter,
 				NULL,
-				&bmp);
+				&bmp
+			);
 			RELEASE(wicFactory);
 			RELEASE(wicDecoder);
 			RELEASE(wicFrame);
@@ -1307,22 +1488,31 @@ namespace RWGraphics
 		method __fastcall fast_picture(ID2D1Bitmap* bmp, FVECTOR2 pos, float opacity, float size = 1.0f) 
 		{
 			// Проверка на видимость:
-			if (
+			if 
+			(
 				pos.x + bmp->GetSize().width > 0 &&
 				pos.y + bmp->GetSize().height > 0 &&
 				pos.x < getConfigString(ScreenSize_X) &&
 				pos.y < getConfigString(ScreenSize_Y)
-				) 
+			) 
 			{
 				// Рисование изображения:
-				RWGraphics::getRenderTarget()->DrawBitmap(
+				RWGraphics::getRenderTarget()->DrawBitmap
+				(
 					bmp,
-					RectF(pos.x, pos.y,
-						pos.x + bmp->GetSize().width * size, pos.y + bmp->GetSize().height * size),
+					RectF
+					(
+						pos.x, pos.y,
+						pos.x + bmp->GetSize().width * size,
+						pos.y + bmp->GetSize().height * size
+					),
 					opacity / 255.f,
 					D2D1_BITMAP_INTERPOLATION_MODE::D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR,
-					RectF(0, 0,
-						bmp->GetSize().width, bmp->GetSize().height)
+					RectF
+					(
+						0, 0,
+						bmp->GetSize().width, bmp->GetSize().height
+					)
 				);
 			}
 		}
@@ -1330,22 +1520,30 @@ namespace RWGraphics
 		{
 			int width = bmp->GetSize().width / el_c;
 			// Проверка на видимость:
-			if (
+			if 
+			(
 				pos.x + (width * el_n) > 0 &&
 				pos.y + bmp->GetSize().height > 0 &&
 				pos.x < getConfigString(ScreenSize_X) &&
 				pos.y < getConfigString(ScreenSize_Y)
-				)
+			)
 			{
 				// Рисование изображения:
-				RWGraphics::getRenderTarget()->DrawBitmap(
+				RWGraphics::getRenderTarget()->DrawBitmap
+				(
 					bmp,
-					RectF(pos.x, pos.y,
-						pos.x + width * size, pos.y + bmp->GetSize().height * size),
+					RectF
+					(
+						pos.x, pos.y,
+						pos.x + width * size, pos.y + bmp->GetSize().height * size
+					),
 					opacity / 255.f,
 					D2D1_BITMAP_INTERPOLATION_MODE::D2D1_BITMAP_INTERPOLATION_MODE_NEAREST_NEIGHBOR,
-					RectF(0 + width * (el_n - 1), 0,
-						0 + width * el_n, bmp->GetSize().height)
+					RectF
+					(
+						0 + width * (el_n - 1), 0,
+						0 + width * el_n, bmp->GetSize().height
+					)
 				);
 			}
 		}
@@ -1359,22 +1557,26 @@ namespace RWGraphics
 			IWICFormatConverter* wicConverter = NULL;
 			UINT sizeX, sizeY;
 			// Создание фабрики WIC:
-			debug = CoCreateInstance(
+			debug = CoCreateInstance
+			(
 				CLSID_WICImagingFactory,
 				NULL,
 				CLSCTX_INPROC_SERVER,
 				IID_IWICImagingFactory,
-				(LPVOID*)& wicFactory);
+				(LPVOID*)& wicFactory
+			);
 			// Создание декодера:
-			debug = wicFactory->CreateDecoderFromFilename(
+			debug = wicFactory->CreateDecoderFromFilename
+			(
 				path,
 				NULL,
 				GENERIC_READ,
 				WICDecodeMetadataCacheOnLoad,
-				&wicDecoder);
+				&wicDecoder
+			);
 			if (FAILED(debug)) 
 			{
-				auto errorcode = SPRITE_FILENAME_ERROR;
+				auto errorcode = Errcodes::SPRITE_FILENAME_ERROR;
 				string definition = "SPRITE_FILENAME_ERROR: " + to_string(debug);
 				RW_ERROR err(errorcode, definition, 1);
 				exit(errorcode);
@@ -1383,28 +1585,36 @@ namespace RWGraphics
 			debug = wicDecoder->GetFrame(0, &wicFrame);
 			wicFrame->GetSize(&sizeX, &sizeY);
 			// Если хотя бы один пиксель изображения виден, то оно рендерится
-			if ((pos.x + sizeX) < getConfigString(ScreenSize_X) &&
+			if 
+			(
+				(pos.x + sizeX) < getConfigString(ScreenSize_X) &&
 				(pos.x + sizeX) > 0 &&
 				(pos.x + sizeY) < getConfigString(ScreenSize_Y) &&
-				(pos.y + sizeY) > 0)
+				(pos.y + sizeY) > 0
+			)
 			{
 				// Создание конвертёра:
 				debug = wicFactory->CreateFormatConverter(&wicConverter);
 				// Настройка конвертёра:
-				debug = wicConverter->Initialize(
+				debug = wicConverter->Initialize
+				(
 					wicFrame,
 					GUID_WICPixelFormat32bppPBGRA,
 					WICBitmapDitherTypeNone,
 					NULL,
 					0.0,
-					WICBitmapPaletteTypeCustom);
+					WICBitmapPaletteTypeCustom
+				);
 				// Конвертация в формат ID2D1Bitmap:
-				debug = RWGraphics::getRenderTarget()->CreateBitmapFromWicBitmap(
+				debug = RWGraphics::getRenderTarget()->CreateBitmapFromWicBitmap
+				(
 					wicConverter,
 					NULL,
-					&bmp);
+					&bmp
+				);
 				// Рисование изображения:
-				RWGraphics::getRenderTarget()->DrawBitmap(
+				RWGraphics::getRenderTarget()->DrawBitmap
+				(
 					bmp,
 					RectF(pos.x, pos.y,
 						pos.x + bmp->GetSize().width * size, pos.y + bmp->GetSize().height * size),
@@ -1466,11 +1676,12 @@ namespace RWGraphics
 				for (int iter = 0; iter < 9; iter++) 
 				{
 					obj.element[iter] = 
-						rotation(
+						rotation
+						(
 							FVECTOR2(center.x, center.y),
 							-90.0f,
 							radius
-					);
+						);
 				}
 			}
 			if (isActive) 
@@ -1478,14 +1689,26 @@ namespace RWGraphics
 				for (int iter = 0; iter < 9; iter++) 
 				{
 					obj.element[iter] =
-						rotation(
-							FVECTOR2(center.x, center.y),
-							vecAngle(FVECTOR2(
-								center.x, center.y
-							), FVECTOR2(
-								obj.element[iter].x,
-								obj.element[iter].y
-							)) + 9 - iter,
+						rotation
+						(
+							FVECTOR2
+							(
+								center.x,
+								center.y
+							),
+							vecAngle
+							(
+								FVECTOR2
+								(
+									center.x,
+									center.y
+								), 
+								FVECTOR2
+								(
+									obj.element[iter].x,
+									obj.element[iter].y
+								)
+							) + 9 - iter,
 							radius
 						);
 				}
@@ -1493,9 +1716,14 @@ namespace RWGraphics
 			for (int iter = 0; iter < 9; iter++) 
 			{
 				color.alpha = 255 - 30 * iter;
-				ellipse(TWDELLIPSE(
-					FVECTOR2(obj.element[iter].x, obj.element[iter].y),
-					6.0f, 6.0f), color, 1.0f);
+				ellipse
+				(
+					TWDELLIPSE
+					(
+						FVECTOR2(obj.element[iter].x, obj.element[iter].y),
+						6.0f, 6.0f
+					), color, 1.0f
+				);
 			}
 		}
 	}
