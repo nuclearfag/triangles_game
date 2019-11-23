@@ -1,0 +1,148 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Исходные файлы">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Файлы заголовков">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Файлы ресурсов">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Исходные файлы\Game">
+      <UniqueIdentifier>{14ba4399-122c-4621-8a55-77dc2ac45dff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\Engine">
+      <UniqueIdentifier>{546931e2-1544-4dde-aca3-29b1e165b2b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\Engine">
+      <UniqueIdentifier>{b9c5ba3f-4b9a-41ee-a878-e8403613a18f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\Game">
+      <UniqueIdentifier>{7b9bb4c2-fe20-447c-9f89-6af60bada8fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы ресурсов\Engine">
+      <UniqueIdentifier>{f1dddbd6-94f8-4938-b0b9-2428011c1bfc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы ресурсов\Engine\Pictures">
+      <UniqueIdentifier>{8e454514-bfa7-4c45-88cb-8643bece6cd2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы ресурсов\Engine\Launch configuration">
+      <UniqueIdentifier>{3ff5da58-3d63-436d-b1e5-01fb1f6ba421}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы ресурсов\Game">
+      <UniqueIdentifier>{4bb35de8-2741-4568-acf9-bcc304388e8c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="RWController.cpp">
+      <Filter>Исходные файлы\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="RWLevel.cpp">
+      <Filter>Исходные файлы\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="RWLoading.cpp">
+      <Filter>Исходные файлы\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="RWMain.cpp">
+      <Filter>Исходные файлы\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="RWXMLParser.cpp">
+      <Filter>Исходные файлы\Engine</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="RWController.h">
+      <Filter>Файлы заголовков\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="RWGlobalDefinitions.h">
+      <Filter>Файлы заголовков\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="RWGraphics.h">
+      <Filter>Файлы заголовков\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="RWHeaders.h">
+      <Filter>Файлы заголовков\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="RWLevel.h">
+      <Filter>Файлы заголовков\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="RWPhysicsConstants.h">
+      <Filter>Файлы заголовков\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="RWLoading.h">
+      <Filter>Файлы заголовков\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="RWVectorMath.h">
+      <Filter>Файлы заголовков\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Файлы заголовков\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="RWXMLParser.h">
+      <Filter>Файлы заголовков\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="RWTimeQuant.h">
+      <Filter>Файлы заголовков\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="RWStringsParser.h">
+      <Filter>Файлы заголовков\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="RWHardwareSync.h">
+      <Filter>Файлы заголовков\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="RWDirectSound.h">
+      <Filter>Файлы заголовков\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="RWTcpIp.h">
+      <Filter>Файлы заголовков\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Kernel1_DescriptorTable.h">
+      <Filter>Файлы заголовков\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="TG_Logic.hpp">
+      <Filter>Файлы заголовков\Game</Filter>
+    </ClInclude>
+    <ClInclude Include="TG_Level.hpp">
+      <Filter>Файлы заголовков\Game</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="resources\img\cursor.PNG">
+      <Filter>Файлы ресурсов\Engine\Pictures</Filter>
+    </Image>
+    <Image Include="resources\img\icon.ico">
+      <Filter>Файлы ресурсов\Engine\Pictures</Filter>
+    </Image>
+    <Image Include="resources\img\engine_logo.png">
+      <Filter>Файлы ресурсов\Engine\Pictures</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="config.rw">
+      <Filter>Файлы ресурсов\Engine\Launch configuration</Filter>
+    </None>
+    <None Include="resources\raw\gamestats.raw">
+      <Filter>Файлы ресурсов\Game</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc">
+      <Filter>Файлы ресурсов\Engine</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="R-Wolf Engine.exe.manifest">
+      <Filter>Файлы ресурсов\Engine</Filter>
+    </Manifest>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="actions.log">
+      <Filter>Файлы ресурсов</Filter>
+    </Text>
+  </ItemGroup>
+</Project>
