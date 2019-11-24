@@ -73,7 +73,8 @@ public:
 		IDDCD1_4(0), IDDCD5_8(0),
 		LLID(1), LPID(1),
 		nodebug(false),
-		crashed(false)
+		crashed(false),
+		score(0)
 	{
 		srand(time(0));
 		m = new u_short* [n] { 0 };
@@ -262,92 +263,56 @@ public:
 		log_action(s);
 		return DotStats(_DS, _IDD, _IDC, _IDDCD1_4, _IDDCD5_8);
 	}
-	void set_stats(DotStats in, u_short x_pos, u_short y_pos, bool mode = WRITE)
+	void set_stats(DotStats in, u_short x_pos, u_short y_pos)
 	{
 		std::string				s;
 		log_action("Обработка запроса \'set_stats()\'");
-		for (u_int i = 0; !fin.eof(); i++)
+		try
 		{
-			if (mode)
+			fout.seekp(((u_int)x_pos + n * (u_int)y_pos) * 51, std::ios::beg);
+			s = "Записанные данные: DS=";
+			s += std::to_string(in.DS) + "; IDD=" + std::to_string(in.IDD) + "; IDDCD1_4=";
+			s += std::to_string(in.IDDCD1_4) + "; IDDCD5_8=" + std::to_string(in.IDDCD5_8);
+			s += "; IDC=" + std::to_string(in.IDC) + " [ ";
+			s += std::to_string(x_pos) + " ; " + std::to_string(y_pos) + " ]";
+			log_action(s);
+			// Сделать запись в буфер в 49-символьном виде:
+			buffer.clear();
+			for (u_short i = std::to_string(in.DS).size(); i < 2; i++)
 			{
-				if (i == ((u_int)x_pos + n * (u_int)y_pos))
-				{
-					s = "Записанные данные: DS=";
-					s += std::to_string(in.DS) + "; IDD=" + std::to_string(in.IDD) + "; IDDCD1_4=";
-					s += std::to_string(in.IDDCD1_4) + "; IDDCD5_8=" + std::to_string(in.IDDCD5_8);
-					s += "; IDC=" + std::to_string(in.IDC) + " [ ";
-					s += std::to_string(x_pos) + " ; " + std::to_string(y_pos) + " ] [";
-					s += std::to_string(i) + "]";
-					log_action(s);
-					// Сделать запись в буфер в 49-символьном виде:
-					buffer.clear();
-					for (u_short i = std::to_string(in.DS).size(); i < 2; i++)
-					{
-						buffer += "0";
-					}
-					buffer += std::to_string(in.DS);
-					for (u_short i = std::to_string(in.IDD).size(); i < 5; i++)
-					{
-						buffer += "0";
-					}
-					buffer += std::to_string(in.IDD);
-					for (u_short i = std::to_string(in.IDDCD1_4).size(); i < 20; i++)
-					{
-						buffer += "0";
-					}
-					buffer += std::to_string(in.IDDCD1_4);
-					for (u_short i = std::to_string(in.IDDCD5_8).size(); i < 20; i++)
-					{
-						buffer += "0";
-					}
-					buffer += std::to_string(in.IDDCD5_8);
-					for (u_short i = std::to_string(in.IDC).size(); i < 2; i++)
-					{
-						buffer += "0";
-					}
-					buffer += std::to_string(in.IDC);
-					fout << buffer << std::endl;
-					break;
-				}
-				else continue;
+				buffer += "0";
 			}
-			else
+			buffer += std::to_string(in.DS);
+			for (u_short i = std::to_string(in.IDD).size(); i < 5; i++)
 			{
-				s = "Записанные данные: DS=";
-				s += std::to_string(in.DS) + "; IDD=" + std::to_string(in.IDD) + "; IDDCD1_4=";
-				s += std::to_string(in.IDDCD1_4) + "; IDDCD5_8=" + std::to_string(in.IDDCD5_8);
-				s += "; IDC=" + std::to_string(in.IDC) + " [ ";
-				s += std::to_string(i) + " ]";
-				log_action(s);
-				buffer.clear();
-				for (u_short i = std::to_string(in.DS).size(); i < 2; i++)
-				{
-					buffer += "0";
-				}
-				buffer += std::to_string(in.DS);
-				for (u_short i = std::to_string(in.IDD).size(); i < 5; i++)
-				{
-					buffer += "0";
-				}
-				buffer += std::to_string(in.IDD);
-				for (u_short i = std::to_string(in.IDDCD1_4).size(); i < 20; i++)
-				{
-					buffer += "0";
-				}
-				buffer += std::to_string(in.IDDCD1_4);
-				for (u_short i = std::to_string(in.IDDCD5_8).size(); i < 20; i++)
-				{
-					buffer += "0";
-				}
-				buffer += std::to_string(in.IDDCD5_8);
-				for (u_short i = std::to_string(in.IDC).size(); i < 2; i++)
-				{
-					buffer += "0";
-				}
-				buffer += std::to_string(in.IDC);
-				fout << buffer << std::endl;
-				break;
+				buffer += "0";
 			}
+			buffer += std::to_string(in.IDD);
+			for (u_short i = std::to_string(in.IDDCD1_4).size(); i < 20; i++)
+			{
+				buffer += "0";
+			}
+			buffer += std::to_string(in.IDDCD1_4);
+			for (u_short i = std::to_string(in.IDDCD5_8).size(); i < 20; i++)
+			{
+				buffer += "0";
+			}
+			buffer += std::to_string(in.IDDCD5_8);
+			for (u_short i = std::to_string(in.IDC).size(); i < 2; i++)
+			{
+				buffer += "0";
+			}
+			buffer += std::to_string(in.IDC);
+			fout << buffer;
+		}
+		catch (std::exception &exc)
+		{
+			crashed = true;
+			std::string msg = "Caught exception: ";
+			msg += exc.what();
+			log_action(msg);
+			MessageBoxA(0, msg.c_str(), "Exception!", MB_OK | MB_ICONERROR);
+			exit(-1);
 		}
 	}
 	inline auto get_matrix() { return this->m; }
@@ -360,6 +325,7 @@ private:
 	u_int						IDDCD1_4, IDDCD5_8;
 	c_char						*states_file;
 	c_char						*log_file;
+	u_int						score;
 	std::ofstream				fout;
 	std::ofstream				log_out;
 	std::ifstream				fin;

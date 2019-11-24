@@ -110,6 +110,9 @@
     <ClInclude Include="TG_Level.hpp">
       <Filter>Файлы заголовков\Game</Filter>
     </ClInclude>
+    <ClInclude Include="RWDataTypesModel.hpp">
+      <Filter>Файлы заголовков\Engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\img\cursor.PNG">
@@ -126,9 +129,6 @@
     <None Include="config.rw">
       <Filter>Файлы ресурсов\Engine\Launch configuration</Filter>
     </None>
-    <None Include="resources\raw\gamestats.raw">
-      <Filter>Файлы ресурсов\Game</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc">
@@ -143,6 +143,9 @@
   <ItemGroup>
     <Text Include="actions.log">
       <Filter>Файлы ресурсов</Filter>
+    </Text>
+    <Text Include="resources\raw\gamestats.raw">
+      <Filter>Файлы ресурсов\Game</Filter>
     </Text>
   </ItemGroup>
 </Project>

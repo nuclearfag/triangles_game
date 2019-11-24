@@ -163,6 +163,7 @@
   <ItemGroup>
     <ClInclude Include="Kernel1_DescriptorTable.h" />
     <ClInclude Include="RWController.h" />
+    <ClInclude Include="RWDataTypesModel.hpp" />
     <ClInclude Include="RWDirectSound.h" />
     <ClInclude Include="RWGraphics.h" />
     <ClInclude Include="RWHardwareSync.h" />
@@ -190,7 +191,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="config.rw" />
-    <None Include="resources\raw\gamestats.raw" />
+    <Text Include="resources\raw\gamestats.raw">
+      <FileType>Document</FileType>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="R-Wolf Engine.exe.manifest" />

@@ -8,7 +8,7 @@ public:
 	void load() override
 	{
 		srand(time(0));
-		game = new TGLogic(3 + rand() % 13);
+		game = new TGLogic(3 + rand() % 5);
 		lag = new LAGOMETER();
 		typecolors = new RGBA[16]{ RGBA(0x30, 0x30, 0x30), RGBA(0x64, 0x64, 0xF1) };
 		p_zero = FVECTOR2
@@ -33,7 +33,7 @@ public:
 	{
 		clscr(RGBA(0x20, 0x20, 0x20));
 		// Секция UI:
-		
+		text(L"Счёт:\n", FVECTOR2(25.f, 25.f), Colors::greenYellow, Fonts::roboto);
 		// Секция игровой зоны:
 		for (u_short y = 0; y < game->get_n(); y++)
 		{
