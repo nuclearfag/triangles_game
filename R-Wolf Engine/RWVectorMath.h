@@ -66,6 +66,10 @@ namespace RWMath
 		{
 			return FVECTOR2(this->x + vec.x, this->y + vec.y);
 		}
+		FVECTOR2 operator -(const FVECTOR2& vec)
+		{
+			return FVECTOR2(this->x - vec.x, this->y - vec.y);
+		}
 		float x;
 		float y;
 	};
@@ -104,6 +108,10 @@ namespace RWMath
 			memset(this, 0, sizeof(*this));
 		}
 		bool operator ==(const IVECTOR2& vec)
+		{
+			return (&vec == this);
+		}
+		bool operator !=(const IVECTOR2& vec)
 		{
 			return (&vec == this);
 		}
@@ -277,6 +285,13 @@ namespace RWMath
 		float angle = vecAngle(from, to);
 		from.x += stepDistance * cos(angle degToRad);
 		from.y += stepDistance * sin(angle degToRad);
+	}
+
+	// Новая функция
+	inline bool inRange(FVECTOR2 vec, FVECTOR2 x_range, FVECTOR2 y_range)
+	{
+		return (vec.x >= x_range.x && vec.x <= x_range.y) && 
+			(vec.y >= y_range.x && vec.y <= y_range.y);
 	}
 
 	/// <summary>
