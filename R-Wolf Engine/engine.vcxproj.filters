@@ -147,5 +147,8 @@
     <Text Include="resources\raw\gamestats.raw">
       <Filter>Файлы ресурсов\Game</Filter>
     </Text>
+    <Text Include="gamestats.log">
+      <Filter>Файлы ресурсов\Game</Filter>
+    </Text>
   </ItemGroup>
 </Project>

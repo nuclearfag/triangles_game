@@ -67,6 +67,7 @@ public:
 	TGLogic(short size_n) :
 		n(size_n),
 		states_file("resources/raw/gamestats.raw"),
+		//states_file("gamestats.log"),
 		log_file("actions.log"),
 		buffer(""),
 		DS(0), IDD(0), IDC(0),
@@ -303,7 +304,7 @@ public:
 				buffer += "0";
 			}
 			buffer += std::to_string(in.IDC);
-			fout << buffer;
+			fout << buffer << std::endl;
 		}
 		catch (std::exception &exc)
 		{
