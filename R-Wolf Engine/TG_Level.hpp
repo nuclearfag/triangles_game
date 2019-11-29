@@ -14,15 +14,11 @@ public:
 		typecolors = new RGBA[16]{ RGBA(0x30, 0x30, 0x30), RGBA(0x64, 0x64, 0xF1) };
 		p_zero = FVECTOR2
 		(
-			0.75f * (getConfigString(ScreenSize_X) - getConfigString(ScreenSize_Y)),
+			(getConfigString(ScreenSize_X) - getConfigString(ScreenSize_Y)) * 0.75f,
 			getConfigString(ScreenSize_Y) * 0.125f
 		);
 		delta = (getConfigString(ScreenSize_Y) * 0.75f) / (float)game->get_n();
-		p_start = FVECTOR2
-		(
-			p_zero.x + (delta * 0.f),
-			p_zero.y + (delta * 0.5f)
-		);
+		p_start = p_zero + delta;
 		prev_click = IVECTOR2(-1, -1);
 		game->switch_nodebug();
 	}
@@ -94,7 +90,7 @@ public:
 				(
 					TWDELLIPSE
 					(
-						p_start * delta, 
+						p_start + FVECTOR2(delta * x, delta * y), 
 						5.f, 5.f
 					),
 					typecolors[game->get_stats(x, y).IDC], 1.f

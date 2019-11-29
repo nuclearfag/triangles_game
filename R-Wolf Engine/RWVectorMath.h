@@ -42,6 +42,15 @@ namespace RWMath
 		}
 		/// <summary>
 		/// <para>
+		/// Инициализация нулевого вектора в точке (n; n)
+		/// </para>
+		/// </summary>
+		FVECTOR2(float n) : x(n), y(n)
+		{
+
+		}
+		/// <summary>
+		/// <para>
 		/// Инициализация нулевого вектора в точке (_x; _y)
 		/// </para>
 		/// </summary>
@@ -62,21 +71,31 @@ namespace RWMath
 		{
 			return (&vec == this);
 		}
-		FVECTOR2 operator +(const FVECTOR2& vec)
+		FVECTOR2 operator +(const FVECTOR2 &vec)
 		{
 			return FVECTOR2(this->x + vec.x, this->y + vec.y);
 		}
-		FVECTOR2 operator -(const FVECTOR2& vec)
+		FVECTOR2 operator +(const float delta)
+		{
+			return FVECTOR2(this->x + delta, this->y + delta);
+		}
+		FVECTOR2 operator -(const FVECTOR2 &vec)
 		{
 			return FVECTOR2(this->x - vec.x, this->y - vec.y);
 		}
-		FVECTOR2 operator*(const float lambda)
+		FVECTOR2 operator *(const float lambda)
 		{
 			return FVECTOR2(this->x * lambda, this->y * lambda);
+		}
+		FVECTOR2 operator *(const FVECTOR2 &lambda)
+		{
+			return FVECTOR2(this->x * lambda.x, this->y * lambda.y);
 		}
 		float x;
 		float y;
 	};
+	// Блок внешних операций типа FVECTOR2:
+
 	/// <summary>
 	/// <para>
 	/// IVECTOR2: 2D-вектор с координатами типа int
@@ -133,6 +152,15 @@ namespace RWMath
 		}
 		int x;
 		int y;
+	};
+	/// <summary>
+	/// <para>
+	/// COMPLEX: 2D-вектор комплексного числа
+	/// </para>
+	/// </summary>
+	struct COMPLEX
+	{
+
 	};
 	enum ReturnTypes
 	{
