@@ -70,6 +70,10 @@ namespace RWMath
 		{
 			return FVECTOR2(this->x - vec.x, this->y - vec.y);
 		}
+		FVECTOR2 operator*(const float lambda)
+		{
+			return FVECTOR2(this->x * lambda, this->y * lambda);
+		}
 		float x;
 		float y;
 	};
@@ -114,6 +118,18 @@ namespace RWMath
 		bool operator !=(const IVECTOR2& vec)
 		{
 			return (&vec == this);
+		}
+		IVECTOR2 operator +(const IVECTOR2& vec)
+		{
+			return IVECTOR2(this->x + vec.x, this->y + vec.y);
+		}
+		IVECTOR2 operator -(const IVECTOR2& vec)
+		{
+			return IVECTOR2(this->x - vec.x, this->y - vec.y);
+		}
+		IVECTOR2 operator*(const int lambda)
+		{
+			return IVECTOR2(this->x * lambda, this->y * lambda);
 		}
 		int x;
 		int y;

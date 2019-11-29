@@ -17,13 +17,13 @@ public:
 			0.75f * (getConfigString(ScreenSize_X) - getConfigString(ScreenSize_Y)),
 			getConfigString(ScreenSize_Y) * 0.125f
 		);
-		delta_w = (getConfigString(ScreenSize_Y) * 0.75f) / (float)game->get_n();
-		delta_h = (getConfigString(ScreenSize_Y) * 0.75f) / (float)game->get_n();
+		delta = (getConfigString(ScreenSize_Y) * 0.75f) / (float)game->get_n();
 		p_start = FVECTOR2
 		(
-			p_zero.x + (delta_w * 0.f),
-			p_zero.y + (delta_h * 0.5f)
+			p_zero.x + (delta * 0.f),
+			p_zero.y + (delta * 0.5f)
 		);
+		prev_click = IVECTOR2(-1, -1);
 		game->switch_nodebug();
 	}
 	void update() override
@@ -37,34 +37,31 @@ public:
 		{
 			for (u_short x = 0; x < game->get_n(); x++)
 			{
-				test = p_start + FVECTOR2(x * delta_w, y * delta_h);
+				test = p_start * delta;
 				lo_range = FVECTOR2(test.x - 10.f, test.x + 10.f);
 				hi_range = FVECTOR2(test.y - 10.f, test.y + 10.f);
+
 				if (GetAsyncKeyState(VK_LBUTTON) &&
 					inRange(mousePos, lo_range, hi_range))
 				{
-					if (!connecting)
+					if (IVECTOR2(x, y) != prev_click)
 					{
-						p_buffer = IVECTOR2(x, y);
 						invert(connecting, INV_LOGIC);
-					}
-					else
-					{
+						prev_click = IVECTOR2(x, y);
 						if
-						(
+							(
 							(abs(x - p_buffer.x) <= 2 && abs(y - p_buffer.y) <= 1) ||
-							(abs(y - p_buffer.y) <= 2 && abs(x - p_buffer.x) <= 1)
-						)
+								(abs(y - p_buffer.y) <= 2 && abs(x - p_buffer.x) <= 1)
+							)
 						{
 							invert(connecting, INV_LOGIC);
-							//game->dot_connect(p_buffer.x, p_buffer.y, x, y);
+							game->dot_connect(p_buffer.x, p_buffer.y, x, y);
 						}
 						else
 						{
 							// Вывести предупреждение о недопустимом расстоянии
 						}
 					}
-					
 				}
 			}
 		}
@@ -82,11 +79,7 @@ public:
 			(
 				TWDLINE
 				(
-					FVECTOR2
-					(
-						p_start.x + p_buffer.x * delta_w,
-						p_start.y + p_buffer.y * delta_h
-					),
+					p_start * delta,
 					mousePos
 				),
 				2.5f,
@@ -101,7 +94,7 @@ public:
 				(
 					TWDELLIPSE
 					(
-						p_start + FVECTOR2(x * delta_w, y * delta_h), 
+						p_start * delta, 
 						5.f, 5.f
 					),
 					typecolors[game->get_stats(x, y).IDC], 1.f
@@ -125,6 +118,7 @@ private:
 	FVECTOR2			p_zero;
 	FVECTOR2			p_start;
 	IVECTOR2			p_buffer;
-	float				delta_w, delta_h;
+	IVECTOR2			prev_click;
+	float				delta;
 	bool				connecting;
 };

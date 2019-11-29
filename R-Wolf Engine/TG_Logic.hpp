@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <string>
+#include <algorithm>
 #include <Windows.h>
 
 typedef unsigned short u_short;
@@ -93,7 +94,7 @@ public:
 		catch (std::exception &exc)
 		{
 			crashed = true;
-			std::string msg = "Caught exception: ";
+			std::string msg = "Caught exception in TGLogic(): ";
 			msg += exc.what();
 			log_action(msg);
 			MessageBoxA(0, msg.c_str(), "Exception!", MB_OK | MB_ICONERROR);
@@ -189,38 +190,10 @@ public:
 		};
 		if (!get_stats(d1_x, d1_y).IDDCD1_4 && !get_stats(d2_x, d2_y).IDDCD1_4)
 		{
-			dc[0].IDDCD1_4 = ((u_int)dc[0].IDD << 48) | dc[1].IDD;
-			dc[1].IDDCD1_4 = ((u_int)dc[0].IDD << 48) | dc[1].IDD;
-			set_stats(dc[0], d1_x, d1_y);
-			set_stats(dc[1], d2_x, d2_y);
+			set_iddc(d1_x, d1_y, 1, dc[0].IDD);
+			set_iddc(d2_x, d2_y, 1, dc[1].IDD);
 			return;
 		}
-		else
-		{
-			// ќбнаружить пустые €чейки:
-
-			set_stats(dc[0], d1_x, d1_y);
-			set_stats(dc[1], d2_x, d2_y);
-			return;
-		}
-		if (!get_stats(d1_x, d1_y).IDDCD5_8 && !get_stats(d2_x, d2_y).IDDCD5_8)
-		{
-			dc[0].IDDCD5_8 = ((u_int)dc[0].IDD << 48) | dc[1].IDD;
-			dc[1].IDDCD5_8 = ((u_int)dc[0].IDD << 48) | dc[1].IDD;
-			set_stats(dc[0], d1_x, d1_y);
-			set_stats(dc[1], d2_x, d2_y);
-			return;
-		}
-		else
-		{
-			// ќбнаружить пустые €чейки:
-
-			set_stats(dc[0], d1_x, d1_y);
-			set_stats(dc[1], d2_x, d2_y);
-			return;
-		}
-		set_stats(dc[0], d1_x, d1_y);
-		set_stats(dc[1], d2_x, d2_y);
 	}
 	DotStats get_stats(u_short x_pos, u_short y_pos)
 	{
@@ -250,7 +223,7 @@ public:
 		catch (std::exception &exc)
 		{
 			crashed = true;
-			std::string msg = "Caught exception: ";
+			std::string msg = "Caught exception in get_stats(): ";
 			msg += exc.what();
 			log_action(msg);
 			MessageBoxA(0, msg.c_str(), "Exception!", MB_OK | MB_ICONERROR);
@@ -309,7 +282,36 @@ public:
 		catch (std::exception &exc)
 		{
 			crashed = true;
-			std::string msg = "Caught exception: ";
+			std::string msg = "Caught exception in set_stats(): ";
+			msg += exc.what();
+			log_action(msg);
+			MessageBoxA(0, msg.c_str(), "Exception!", MB_OK | MB_ICONERROR);
+			exit(-1);
+		}
+	}
+	void set_iddc(u_short x_pos, u_short y_pos, u_short reg, u_short idd)
+	{
+		std::string				s;
+		std::string				iddreg;
+		log_action("ќбработка запроса \'set_iddc()\'");
+		try
+		{
+			fout.seekp(((u_int)x_pos + n * (u_int)y_pos) * 51, std::ios::beg);
+			fin.seekg(((u_int)x_pos + n * (u_int)y_pos) * 51, std::ios::beg);
+			fin >> buffer;
+			iddreg.clear();
+			for (u_short i = std::to_string(idd).size(); i < 8; i++)
+			{
+				iddreg += "0";
+			}
+			iddreg += std::to_string(idd);
+			buffer.replace(2 + 8 * (reg - 1), 2 + 8 * reg, iddreg);
+			log_out << buffer << std::endl;
+		}
+		catch (std::exception & exc)
+		{
+			crashed = true;
+			std::string msg = "Caught exception in set_iddc(): ";
 			msg += exc.what();
 			log_action(msg);
 			MessageBoxA(0, msg.c_str(), "Exception!", MB_OK | MB_ICONERROR);
