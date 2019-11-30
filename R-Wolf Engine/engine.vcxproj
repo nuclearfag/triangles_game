@@ -191,10 +191,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="config.rw" />
-    <Text Include="gamestats.log" />
-    <Text Include="resources\raw\gamestats.raw">
-      <FileType>Document</FileType>
-    </Text>
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="R-Wolf Engine.exe.manifest" />

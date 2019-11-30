@@ -9,7 +9,7 @@ public:
 	{
 		srand(time(0));
 		connecting = false;
-		game = new TGLogic(3 + rand() % 13);
+		game = new TGLogic(4 + rand() % 3);
 		lag = new LAGOMETER();
 		typecolors = new RGBA[16]{ RGBA(0x30, 0x30, 0x30), RGBA(0x64, 0x64, 0xF1) };
 		p_zero = FVECTOR2
@@ -18,9 +18,9 @@ public:
 			getConfigString(ScreenSize_Y) * 0.125f
 		);
 		delta = (getConfigString(ScreenSize_Y) * 0.75f) / (float)game->get_n();
-		p_start = p_zero + delta;
-		prev_click = IVECTOR2(-1, -1);
-		game->switch_nodebug();
+		p_start = p_zero + FVECTOR2(0.45 * delta, 0.75 * delta);
+		p_click = IVECTOR2(-1, -1);
+		game->set_iddc(0, 0, 1, 1);
 	}
 	void update() override
 	{
@@ -33,29 +33,34 @@ public:
 		{
 			for (u_short x = 0; x < game->get_n(); x++)
 			{
-				test = p_start * delta;
+				test = p_start + FVECTOR2(delta * x, delta * y);
 				lo_range = FVECTOR2(test.x - 10.f, test.x + 10.f);
 				hi_range = FVECTOR2(test.y - 10.f, test.y + 10.f);
-
+				// Если произошёл клик в заданной области
 				if (GetAsyncKeyState(VK_LBUTTON) &&
 					inRange(mousePos, lo_range, hi_range))
 				{
-					if (IVECTOR2(x, y) != prev_click)
+					// Если позиция клика не повторяет предыдущую
+					if (!(IVECTOR2(x, y) == p_click))
 					{
-						invert(connecting, INV_LOGIC);
-						prev_click = IVECTOR2(x, y);
+						invert(connecting, INV_LOGIC);	// Отрицание флага connecting
+						p_click = IVECTOR2(x, y);		// Присвоение p_click нового значения
+						// Если расстояния по x или y принадлежат интервалам (0; 2] или (0; 1]
 						if
 							(
-							(abs(x - p_buffer.x) <= 2 && abs(y - p_buffer.y) <= 1) ||
-								(abs(y - p_buffer.y) <= 2 && abs(x - p_buffer.x) <= 1)
+								connecting &&
+								(abs(x - p_click.x) && abs(x - p_click.x) <= 2 &&
+								abs(y - p_click.y) && abs(y - p_click.y) <= 1) ||
+								(abs(y - p_click.y) && abs(y - p_click.y) <= 2 &&
+								abs(x - p_click.x) && abs(x - p_click.x) <= 1)
 							)
 						{
-							invert(connecting, INV_LOGIC);
-							game->dot_connect(p_buffer.x, p_buffer.y, x, y);
+							invert(connecting, INV_LOGIC);	// Отрицание флага connecting
+							game->dot_connect(p_click.x, p_click.y, x, y);	// Соединение точек
 						}
 						else
 						{
-							// Вывести предупреждение о недопустимом расстоянии
+							//p_click = IVECTOR2(-1, -1);
 						}
 					}
 				}
@@ -67,7 +72,28 @@ public:
 	{
 		clscr(RGBA(0x20, 0x20, 0x20));
 		// Секция UI:
-		text(L"Счёт:\n", FVECTOR2(25.f, 25.f), Colors::greenYellow, Fonts::roboto);
+		//text(L"Счёт:\n", FVECTOR2(25.f, 25.f), Colors::greenYellow, Fonts::roboto);
+		if (!game->get_debug())
+		{
+			text(L"gamestats = \n", FVECTOR2(25.f, 15.f), Colors::orangeRed, Fonts::fixedsys);
+			for (u_short x = 0; x < game->get_n(); x++)
+			{
+				for (u_short y = 0; y < game->get_n(); y++)
+				{
+					string i = game->gamestats[x + game->get_n() * y];
+					text(wstring(i.begin(), i.end()) + L"\n", FVECTOR2(25.f, 35.f + 15.f * (x + game->get_n() * y)), Colors::orangeRed, Fonts::fixedsys);
+				}
+			}
+			text(L"debug mode ON\n", FVECTOR2(450.f, 15.f), Colors::orangeRed, Fonts::fixedsys);
+			text(L"connecting = " + to_wstring(connecting) + L"\n", FVECTOR2(450.f, 35.f), Colors::orangeRed, Fonts::fixedsys);
+			text(L"delta = " + to_wstring(delta) + L"\n", FVECTOR2(450.f, 50.f), Colors::orangeRed, Fonts::fixedsys);
+			text(L"p_zero = " + to_wstring(p_zero.x) + L" ; " + to_wstring(p_zero.y) + L"\n", FVECTOR2(450.f, 65.f), Colors::orangeRed, Fonts::fixedsys);
+			text(L"p_start = " + to_wstring(p_start.x) + L" ; " + to_wstring(p_start.y) + L"\n", FVECTOR2(450.f, 80.f), Colors::orangeRed, Fonts::fixedsys);
+			text(L"p_click = " + to_wstring(p_click.x) + L" ; " + to_wstring(p_click.y) + L"\n", FVECTOR2(450.f, 95.f), Colors::orangeRed, Fonts::fixedsys);
+			text(L"n = " + to_wstring(game->get_n()) + L"\n", FVECTOR2(450.f, 110.f), Colors::orangeRed, Fonts::fixedsys);
+			text(L"m_pos = " + to_wstring(mousePos.x) + L" ; " + to_wstring(mousePos.y) + L"\n", FVECTOR2(450.f, 125.f), Colors::yellow, Fonts::fixedsys);
+			text(L"score = " + to_wstring(game->score) + L"\n", FVECTOR2(450.f, 140.f), Colors::green, Fonts::fixedsys);
+		}
 		// Секция игровой зоны:
 		if (connecting)
 		{
@@ -75,7 +101,11 @@ public:
 			(
 				TWDLINE
 				(
-					p_start * delta,
+					p_start + FVECTOR2
+					(
+						delta * p_click.x, 
+						delta * p_click.y
+					),
 					mousePos
 				),
 				2.5f,
@@ -113,8 +143,7 @@ private:
 	RGBA				*typecolors;
 	FVECTOR2			p_zero;
 	FVECTOR2			p_start;
-	IVECTOR2			p_buffer;
-	IVECTOR2			prev_click;
+	IVECTOR2			p_click;
 	float				delta;
 	bool				connecting;
 };
