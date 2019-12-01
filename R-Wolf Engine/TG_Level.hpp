@@ -5,6 +5,15 @@
 
 class TGLevel : public RWLevel {
 public:
+	inline FVECTOR2 extract_coord(u_short pos)
+	{
+		u_short n = game->get_n();
+		return FVECTOR2
+		(
+			n * (((float)pos / (float)n) - floor(pos / n)),
+			floor(pos / n)
+		);
+	}
 	void load() override
 	{
 		srand(time(0));
@@ -20,7 +29,6 @@ public:
 		delta = (getConfigString(ScreenSize_Y) * 0.75f) / (float)game->get_n();
 		p_start = p_zero + FVECTOR2(0.45 * delta, 0.75 * delta);
 		p_click = IVECTOR2(-1, -1);
-		game->set_iddc(0, 0, 1, 1);
 	}
 	void update() override
 	{
@@ -36,9 +44,9 @@ public:
 				test = p_start + FVECTOR2(delta * x, delta * y);
 				lo_range = FVECTOR2(test.x - 10.f, test.x + 10.f);
 				hi_range = FVECTOR2(test.y - 10.f, test.y + 10.f);
-				// Если произошёл клик в заданной области
+				// Если произошёл клик в заданной области и она существует в логике игры
 				if (GetAsyncKeyState(VK_LBUTTON) &&
-					inRange(mousePos, lo_range, hi_range))
+					inRange(mousePos, lo_range, hi_range) && game->get_matrix()[x][y])
 				{
 					// Если позиция клика не повторяет предыдущую
 					if (!(IVECTOR2(x, y) == p_click))
@@ -111,6 +119,30 @@ public:
 				2.5f,
 				Colors::green
 			);
+		}
+		for (u_short y = 0; y < game->get_n(); y++)
+		{
+			for (u_short x = 0; x < game->get_n(); x++)
+			{
+				// Регистр (упрощённый) уже содержит в себе позицию своей пары:
+				if (game->get_stats(x, y).IDDCD1_4)
+				{
+					line
+					(
+						TWDLINE
+						(
+							p_start + FVECTOR2
+							(
+								delta * x,
+								delta * y
+							),
+							p_start + extract_coord(game->get_stats(x, y).IDDCD1_4) * delta
+						),
+						2.5f,
+						Colors::green
+					);
+				}
+			}
 		}
 		for (u_short y = 0; y < game->get_n(); y++)
 		{

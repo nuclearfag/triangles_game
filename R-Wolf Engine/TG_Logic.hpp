@@ -121,6 +121,7 @@ public:
 		std::time_t action_time = std::chrono::system_clock::to_time_t(t);
 		return std::ctime(&action_time);
 	}
+	u_short get_position(u_short x, u_short y) { return (x + n * y); }
 	void rand_fill(u_short iterations)
 	{
 		u_short					arg_x, arg_y;
@@ -174,8 +175,10 @@ public:
 			get_stats(d1_x, d1_y),
 			get_stats(d2_x, d2_y)
 		};
-		set_iddc(d1_x, d1_y, 1, dc[0].IDD);
-		set_iddc(d2_x, d2_y, 1, dc[1].IDD);
+		dc[0].IDDCD1_4 = get_position(d2_x, d2_y);
+		dc[1].IDDCD1_4 = get_position(d1_x, d1_y);
+		set_stats(dc[0], d1_x, d1_y);
+		set_stats(dc[1], d2_x, d2_y);
 	}
 	DotStats get_stats(u_short x_pos, u_short y_pos)
 	{
@@ -192,7 +195,7 @@ public:
 			_DS = static_cast<u_short>(std::stoi(buffer.substr(0, 2)));
 			_IDD = static_cast<u_short>(std::stoi(buffer.substr(2, 5)));
 			_IDDCD1_4 = std::stoull(buffer.substr(7, 20));
-			_IDDCD5_8 = std::stoull(buffer.substr(26, 20));
+			_IDDCD5_8 = std::stoull(buffer.substr(27, 20));
 			_IDC = static_cast<u_short>(std::stoi(buffer.substr(47, 2)));
 			s = "Прочитанные данные: DS=";
 			s += std::to_string(_DS) + "; IDD=" + std::to_string(_IDD) + "; IDDCD1_4=";
@@ -259,31 +262,6 @@ public:
 		{
 			crashed = true;
 			std::string msg = "Caught exception in set_stats(): ";
-			msg += exc.what();
-			msg += "\nLast string: " + buffer + " ; (" + to_string(buffer.length()) + " symbols)";
-			log_action(msg);
-			MessageBoxA(0, msg.c_str(), "Exception!", MB_OK | MB_ICONERROR);
-			exit(-1);
-		}
-	}
-	void set_iddc(u_short x_pos, u_short y_pos, u_short reg, u_short idd)
-	{
-		std::string				s;
-		std::string				iddreg, i;
-		log_action("Обработка запроса \'set_iddc()\'");
-		try
-		{
-			buffer = gamestats[x_pos + n * y_pos];
-			i = std::to_string(idd);
-			iddreg.append(5 - i.size(), '0');
-			iddreg.append(i);
-			buffer.replace(2 + 5 * ((u_int)reg - 1), 2 + 5 * (u_int)reg, iddreg, 0, 5);
-			gamestats[x_pos + n * y_pos] = buffer;
-		}
-		catch (std::exception & exc)
-		{
-			crashed = true;
-			std::string msg = "Caught exception in set_iddc(): ";
 			msg += exc.what();
 			msg += "\nLast string: " + buffer + " ; (" + to_string(buffer.length()) + " symbols)";
 			log_action(msg);
