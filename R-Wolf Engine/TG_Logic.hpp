@@ -6,7 +6,9 @@
 #include <cstdlib>
 #include <fstream>
 #include <string>
+#include <vector>
 #include <algorithm>
+#include <iomanip>
 #include <Windows.h>
 
 typedef unsigned short u_short;
@@ -79,7 +81,7 @@ public:
 		score(0)
 	{
 		srand(time(0));
-		m = new u_short* [n] { 0 };
+		m = new u_short* [n]{ 0 };
 		gamestats = new string[n * n];
 		for (u_short i = 0; i < n; i++) m[i] = new u_short[n]{ 0 };
 		try
@@ -196,17 +198,21 @@ public:
 		// Этап первый: поиск первого свободного субрегистра
 		for (u_short i = 0; i < 8; i++)
 		{
-			if (!dc[0].IDDCD[i])
+			if (dc[0].IDDCD[i] == get_position(d2_x, d2_y)) break;
+			else if (!dc[0].IDDCD[i])
 			{
 				dc[0].IDDCD[i] = get_position(d2_x, d2_y);
+				score += 1;
 				break;
 			}
 		}
 		for (u_short i = 0; i < 8; i++)
 		{
-			if (!dc[1].IDDCD[i])
+			if (dc[1].IDDCD[i] == get_position(d1_x, d1_y)) break;
+			else if (!dc[1].IDDCD[i])
 			{
 				dc[1].IDDCD[i] = get_position(d1_x, d1_y);
+				score += 1;
 				break;
 			}
 		}

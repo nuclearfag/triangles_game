@@ -14,10 +14,67 @@ public:
 			floor(pos / n)
 		);
 	}
+	inline void get_triangles(u_short x, u_short y)
+	{
+		DotStats A, B, C;
+		A = game->get_stats(x, y);
+		for (u_short i = 0; i < 8; i++)
+		{
+			if (!A.IDDCD[i]) return;
+			else
+			{
+				if (!A.IDDCD[i + 1]) return;
+				B = game->get_stats
+				(
+					game->get_n() * (((float)A.IDDCD[i] / (float)game->get_n()) - floor(A.IDDCD[i] / game->get_n())),
+					floor(A.IDDCD[i] / game->get_n())
+				);
+				C = B = game->get_stats
+				(
+					game->get_n() * (((float)A.IDDCD[i + 1] / (float)game->get_n()) - floor(A.IDDCD[i + 1] / game->get_n())),
+					floor(A.IDDCD[i + 1] / game->get_n())
+				);
+				if (B.IDDCD[i] && B.IDDCD[i + 1])
+				{
+					if ((B.IDDCD[i] == A.IDDCD[i]) || (B.IDDCD[i + 1] == A.IDDCD[i]))
+					{
+						if
+							(
+							(C.IDDCD[i] == B.IDDCD[i]) || (C.IDDCD[i] == A.IDDCD[i]) ||
+								(C.IDDCD[i] == B.IDDCD[i + 1]) || (C.IDDCD[i] == A.IDDCD[i + 1]) ||
+								(C.IDDCD[i + 1] == B.IDDCD[i]) || (C.IDDCD[i + 1] == A.IDDCD[i]) ||
+								(C.IDDCD[i + 1] == B.IDDCD[i + 1]) || (C.IDDCD[i + 1] == A.IDDCD[i + 1])
+								)
+						{
+							// Внимание! Внешнее подключение движка, работать вне проекта не будет.
+							RWGraphics::npolygon
+							(
+								RWGraphics::NPOLYGON
+								(
+									3,
+									{
+										
+										p_start + (extract_coord(game->get_position(x, y)) * delta),
+										p_start + (extract_coord(A.IDDCD[i]) * delta),
+										p_start + (extract_coord(A.IDDCD[i + 1]) * delta),
+									}
+								),
+								RWGraphics::Colors::chartreuse,
+								1.0f
+							);
+						}
+						else return;
+					}
+					else return;
+				}
+				else return;
+			}
+		}
+	}
 	void load() override
 	{
 		srand(time(0));
-		connecting = false;
+		isClicked = false;
 		game = new TGLogic(5 + rand() % 1);
 		lag = new LAGOMETER();
 		typecolors = new RGBA[16]{ RGBA(0x30, 0x30, 0x30), RGBA(0x64, 0x64, 0xF1) };
@@ -29,14 +86,6 @@ public:
 		delta = (getConfigString(ScreenSize_Y) * 0.75f) / (float)game->get_n();
 		p_start = p_zero + FVECTOR2(0.45 * delta, 0.75 * delta);
 		p_click = IVECTOR2(-1, -1);
-		game->dot_connect(2, 2, 2, 1);
-		game->dot_connect(2, 2, 1, 1);
-		game->dot_connect(2, 2, 3, 2);
-		game->dot_connect(2, 2, 1, 2);
-		game->dot_connect(2, 2, 3, 1);
-		game->dot_connect(2, 2, 2, 3);
-		game->dot_connect(2, 2, 1, 3);
-		game->dot_connect(2, 2, 3, 3);
 	}
 	void update() override
 	{
@@ -57,11 +106,15 @@ public:
 				if (GetAsyncKeyState(VK_LBUTTON) &&
 					inRange(mousePos, lo_range, hi_range) && game->get_matrix()[x][y])
 				{
-					// Если позиция клика не повторяет предыдущую
-					if (!(IVECTOR2(x, y) == p_click))
+					// Если не было клика - переключаем флаг и сохраняем позицию
+					if (!isClicked) 
+					{ 
+						invert(isClicked, INV_LOGIC);
+						p_click = IVECTOR2(x, y);
+					}
+					// Если клик есть и он не повторяет последнюю позицию
+					else if (!(IVECTOR2(x, y) == p_click) && isClicked)
 					{
-						if (!connecting) invert(connecting, INV_LOGIC);		// Отрицание флага connecting
-						p_click = IVECTOR2(x, y);		// Присвоение p_click нового значения
 						// Если расстояния по x или y принадлежат интервалам (0; 2] или (0; 1]
 						if
 							(
@@ -69,17 +122,17 @@ public:
 								(abs(y - p_click.y) <= 2 &&	abs(x - p_click.x) <= 1)
 							)
 						{
-							invert(connecting, INV_LOGIC);	// Отрицание флага connecting
-							game->dot_connect(p_click.x, p_click.y, x, y);	// Соединение точек
-							break;
-						}
-						else
-						{
-							//p_click = IVECTOR2(-1, -1);
-							game->dot_connect(p_click.x, p_click.y, x, y);	// Соединение точек
-							break;
+							// Соединяем точки, сбрасываем флаг, выходим из цикла
+							game->dot_connect(p_click.x, p_click.y, x, y);
+							invert(isClicked, INV_LOGIC);
+							break; break;
 						}
 					}
+				}
+				// Если нажата правая кнопка мыши - выход из режима соединения
+				else if (GetAsyncKeyState(VK_RBUTTON) && isClicked)
+				{
+					isClicked = false;
 				}
 			}
 		}
@@ -102,7 +155,7 @@ public:
 				}
 			}
 			text(L"debug mode ON\n", FVECTOR2(450.f, 15.f), Colors::orangeRed, Fonts::fixedsys);
-			text(L"connecting = " + to_wstring(connecting) + L"\n", FVECTOR2(450.f, 35.f), Colors::orangeRed, Fonts::fixedsys);
+			text(L"isClicked = " + to_wstring(isClicked) + L"\n", FVECTOR2(450.f, 35.f), Colors::orangeRed, Fonts::fixedsys);
 			text(L"delta = " + to_wstring(delta) + L"\n", FVECTOR2(450.f, 50.f), Colors::orangeRed, Fonts::fixedsys);
 			text(L"p_zero = " + to_wstring(p_zero.x) + L" ; " + to_wstring(p_zero.y) + L"\n", FVECTOR2(450.f, 65.f), Colors::orangeRed, Fonts::fixedsys);
 			text(L"p_start = " + to_wstring(p_start.x) + L" ; " + to_wstring(p_start.y) + L"\n", FVECTOR2(450.f, 80.f), Colors::orangeRed, Fonts::fixedsys);
@@ -112,7 +165,7 @@ public:
 			text(L"score = " + to_wstring(game->score) + L"\n", FVECTOR2(450.f, 140.f), Colors::green, Fonts::fixedsys);
 		}
 		// Секция игровой зоны:
-		if (connecting)
+		if (isClicked)
 		{
 			line
 			(
@@ -133,6 +186,7 @@ public:
 		{
 			for (u_short x = 0; x < game->get_n(); x++)
 			{
+				get_triangles(x, y);
 				// Регистр (натуральный) уже содержит в себе позиции своих пар:
 				for (u_short i = 0; i < 8; i++)
 				{
@@ -192,5 +246,5 @@ private:
 	FVECTOR2			p_start;
 	IVECTOR2			p_click;
 	float				delta;
-	bool				connecting;
+	bool				isClicked;
 };
