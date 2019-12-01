@@ -18,7 +18,7 @@ public:
 	{
 		srand(time(0));
 		connecting = false;
-		game = new TGLogic(4 + rand() % 3);
+		game = new TGLogic(5 + rand() % 1);
 		lag = new LAGOMETER();
 		typecolors = new RGBA[16]{ RGBA(0x30, 0x30, 0x30), RGBA(0x64, 0x64, 0xF1) };
 		p_zero = FVECTOR2
@@ -29,11 +29,20 @@ public:
 		delta = (getConfigString(ScreenSize_Y) * 0.75f) / (float)game->get_n();
 		p_start = p_zero + FVECTOR2(0.45 * delta, 0.75 * delta);
 		p_click = IVECTOR2(-1, -1);
+		game->dot_connect(2, 2, 2, 1);
+		game->dot_connect(2, 2, 1, 1);
+		game->dot_connect(2, 2, 3, 2);
+		game->dot_connect(2, 2, 1, 2);
+		game->dot_connect(2, 2, 3, 1);
+		game->dot_connect(2, 2, 2, 3);
+		game->dot_connect(2, 2, 1, 3);
+		game->dot_connect(2, 2, 3, 3);
 	}
 	void update() override
 	{
 		// Выглядит крайне сомнительно, но, сука, работает!
 		// Но в любом случае надо будет оптимизировать...
+		// Нет, хуйня какая-то - не работает.
 		FVECTOR2 test = FVECTOR2();
 		FVECTOR2 lo_range = FVECTOR2();
 		FVECTOR2 hi_range = FVECTOR2();
@@ -51,24 +60,24 @@ public:
 					// Если позиция клика не повторяет предыдущую
 					if (!(IVECTOR2(x, y) == p_click))
 					{
-						invert(connecting, INV_LOGIC);	// Отрицание флага connecting
+						if (!connecting) invert(connecting, INV_LOGIC);		// Отрицание флага connecting
 						p_click = IVECTOR2(x, y);		// Присвоение p_click нового значения
 						// Если расстояния по x или y принадлежат интервалам (0; 2] или (0; 1]
 						if
 							(
-								connecting &&
-								(abs(x - p_click.x) && abs(x - p_click.x) <= 2 &&
-								abs(y - p_click.y) && abs(y - p_click.y) <= 1) ||
-								(abs(y - p_click.y) && abs(y - p_click.y) <= 2 &&
-								abs(x - p_click.x) && abs(x - p_click.x) <= 1)
+								(abs(x - p_click.x) <= 2 &&	abs(y - p_click.y) <= 1) ||
+								(abs(y - p_click.y) <= 2 &&	abs(x - p_click.x) <= 1)
 							)
 						{
 							invert(connecting, INV_LOGIC);	// Отрицание флага connecting
 							game->dot_connect(p_click.x, p_click.y, x, y);	// Соединение точек
+							break;
 						}
 						else
 						{
 							//p_click = IVECTOR2(-1, -1);
+							game->dot_connect(p_click.x, p_click.y, x, y);	// Соединение точек
+							break;
 						}
 					}
 				}
@@ -124,24 +133,30 @@ public:
 		{
 			for (u_short x = 0; x < game->get_n(); x++)
 			{
-				// Регистр (упрощённый) уже содержит в себе позицию своей пары:
-				if (game->get_stats(x, y).IDDCD1_4)
+				// Регистр (натуральный) уже содержит в себе позиции своих пар:
+				for (u_short i = 0; i < 8; i++)
 				{
-					line
-					(
-						TWDLINE
+					if (game->get_stats(x, y).IDDCD[i])
+					{
+						line
 						(
-							p_start + FVECTOR2
+							TWDLINE
 							(
-								delta * x,
-								delta * y
+								p_start + FVECTOR2
+								(
+									delta * x,
+									delta * y
+								),
+								p_start + extract_coord(game->get_stats(x, y).IDDCD[i]) * delta
 							),
-							p_start + extract_coord(game->get_stats(x, y).IDDCD1_4) * delta
-						),
-						2.5f,
-						Colors::green
-					);
+							2.5f,
+							Colors::green
+						);
+						if (!game->get_stats(x, y).IDDCD[i + 1]) break;
+					}
+					else if (i == 0) break;
 				}
+
 			}
 		}
 		for (u_short y = 0; y < game->get_n(); y++)

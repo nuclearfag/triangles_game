@@ -1096,7 +1096,7 @@ namespace RWGraphics
 		if (!obj->getDifference()) obj->setDifference();
 		
 		wstring out = L"Lagometer enabled\nAverage FPS: ";
-		out += to_wstring(1000 / obj->getDifference());
+		out += to_wstring( obj->getDifference());
 		out += L" frames.\n";
 		out += L"Random access memory used: ";
 		out += to_wstring(mem_cur);

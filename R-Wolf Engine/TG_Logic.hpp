@@ -17,22 +17,24 @@ struct DotStats
 {
 	DotStats() :
 		DS(0), IDD(0), IDC(0),
-		IDDCD1_4(0), IDDCD5_8(0)
+		IDDCD()
 	{
 
 	}
-	DotStats(u_short ds, u_short idd, u_short idc, u_int iddcd1, u_int iddcd5) :
-		DS(ds), IDD(idd), IDC(idc),
-		IDDCD1_4(iddcd1), IDDCD5_8(iddcd5)
+	DotStats(u_short ds, u_short idd, u_short idc, u_short *subreg) :
+		DS(ds), IDD(idd), IDC(idc)
 	{
-
+		for (u_short i = 0; i < 8; i++)
+		{
+			IDDCD[i] = subreg[i];
+		}
 	}
 	~DotStats()
 	{
 		memset(this, 0, sizeof(*this));
 	}
 	u_short						DS, IDD, IDC;
-	u_int						IDDCD1_4, IDDCD5_8;
+	u_short						IDDCD[8]{ 0 };
 };
 
 enum DSStats
@@ -154,7 +156,15 @@ public:
 					s += std::to_string(LPID) + " [ " + std::to_string(sx) + " ; ";
 					s += std::to_string(sy) + " ]";
 					log_action(s);
-					set_stats(DotStats(0, LPID, DSC_EXIST, 0, 0), sx, sy);
+					set_stats
+					(
+						DotStats
+						(
+							0, LPID, DSC_EXIST,
+							empty
+						), 
+						sx, sy
+					);
 					LPID++;
 				}
 				else 
@@ -163,7 +173,15 @@ public:
 					s += " [ " + std::to_string(sx) + " ; ";
 					s += std::to_string(sy) + " ]";
 					log_action(s);
-					set_stats(DotStats(0, 0, DSC_EMPTY, 0, 0), sx, sy); 
+					set_stats
+					(
+						DotStats
+						(
+							0, 0, DSC_EMPTY,
+							empty
+						), 
+						sx, sy
+					);
 				}
 			}
 		}
@@ -175,8 +193,23 @@ public:
 			get_stats(d1_x, d1_y),
 			get_stats(d2_x, d2_y)
 		};
-		dc[0].IDDCD1_4 = get_position(d2_x, d2_y);
-		dc[1].IDDCD1_4 = get_position(d1_x, d1_y);
+		// Этап первый: поиск первого свободного субрегистра
+		for (u_short i = 0; i < 8; i++)
+		{
+			if (!dc[0].IDDCD[i])
+			{
+				dc[0].IDDCD[i] = get_position(d2_x, d2_y);
+				break;
+			}
+		}
+		for (u_short i = 0; i < 8; i++)
+		{
+			if (!dc[1].IDDCD[i])
+			{
+				dc[1].IDDCD[i] = get_position(d1_x, d1_y);
+				break;
+			}
+		}
 		set_stats(dc[0], d1_x, d1_y);
 		set_stats(dc[1], d2_x, d2_y);
 	}
@@ -184,8 +217,7 @@ public:
 	{
 		u_short					_DS (0);
 		u_short					_IDD (0);
-		u_int					_IDDCD1_4 (0);
-		u_int					_IDDCD5_8 (0);
+		u_short					_reg[8]{ 0 };
 		u_short					_IDC (0);
 		std::string				s;
 		log_action("Обработка запроса \'get_stats()\'");
@@ -194,12 +226,13 @@ public:
 			buffer = gamestats[x_pos + n * y_pos];
 			_DS = static_cast<u_short>(std::stoi(buffer.substr(0, 2)));
 			_IDD = static_cast<u_short>(std::stoi(buffer.substr(2, 5)));
-			_IDDCD1_4 = std::stoull(buffer.substr(7, 20));
-			_IDDCD5_8 = std::stoull(buffer.substr(27, 20));
+			for (u_short i = 0; i < 8; i++)
+			{
+				_reg[i] = static_cast<u_short>(std::stoi(buffer.substr(7 + 5 * (u_int)i, 5)));
+			}
 			_IDC = static_cast<u_short>(std::stoi(buffer.substr(47, 2)));
 			s = "Прочитанные данные: DS=";
-			s += std::to_string(_DS) + "; IDD=" + std::to_string(_IDD) + "; IDDCD1_4=";
-			s += std::to_string(_IDDCD1_4) + "; IDDCD5_8=" + std::to_string(_IDDCD5_8);
+			s += std::to_string(_DS) + "; IDD=" + std::to_string(_IDD);
 			s += "; IDC=" + std::to_string(_IDC);
 			log_action(s);
 		}
@@ -214,12 +247,11 @@ public:
 			exit(-1);
 		}
 		s = "Возвращённые данные: DS=";
-		s += std::to_string(_DS) + "; IDD=" + std::to_string(_IDD) + "; IDDCD1_4=";
-		s += std::to_string(_IDDCD1_4) + "; IDDCD5_8=" + std::to_string(_IDDCD5_8);
+		s += std::to_string(_DS) + "; IDD=" + std::to_string(_IDD);
 		s += "; IDC=" + std::to_string(_IDC) + " [ ";
 		s += std::to_string(x_pos) + " ; " + std::to_string(y_pos) + " ]";
 		log_action(s);
-		return DotStats(_DS, _IDD, _IDC, _IDDCD1_4, _IDDCD5_8);
+		return DotStats(_DS, _IDD, _IDC, _reg);
 	}
 	void set_stats(DotStats in, u_short x_pos, u_short y_pos)
 	{
@@ -229,8 +261,7 @@ public:
 		try
 		{
 			s = "Записанные данные: DS=";
-			s += std::to_string(in.DS) + "; IDD=" + std::to_string(in.IDD) + "; IDDCD1_4=";
-			s += std::to_string(in.IDDCD1_4) + "; IDDCD5_8=" + std::to_string(in.IDDCD5_8);
+			s += std::to_string(in.DS) + "; IDD=" + std::to_string(in.IDD);
 			s += "; IDC=" + std::to_string(in.IDC) + " [ ";
 			s += std::to_string(x_pos) + " ; " + std::to_string(y_pos) + " ]";
 			log_action(s);
@@ -244,13 +275,12 @@ public:
 			buffer.append(5 - i.size(), '0');
 			buffer.append(i);
 
-			i = std::to_string(in.IDDCD1_4);
-			buffer.append(20 - i.size(), '0');
-			buffer.append(i);
-
-			i = std::to_string(in.IDDCD5_8);
-			buffer.append(20 - i.size(), '0');
-			buffer.append(i);
+			for (u_short it = 0; it < 8; it++)
+			{
+				i = std::to_string(in.IDDCD[it]);
+				buffer.append(5 - i.size(), '0');
+				buffer.append(i);
+			}
 
 			i = std::to_string(in.IDC);
 			buffer.append(2 - i.size(), '0');
@@ -276,6 +306,7 @@ public:
 	u_int						score;
 private:
 	u_short						**m;
+	u_short						empty[8]{ 0 };
 	u_short						n;
 	u_short						DS, IDD, IDC;
 	u_short						LPID;
