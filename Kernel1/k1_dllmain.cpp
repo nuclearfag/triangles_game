@@ -1,5 +1,5 @@
 ﻿#include "pch.h"
-
+#include <string>
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <cmath>
@@ -13,16 +13,32 @@
 #define WIPE(a) a = 0
 #define SET(a) pLib->a = a
 #define GET(a) pLib->a
-
-enum Kernel1_Errors
-{
-	D2D1CreateFactory_FAIL = 8,
-	D2D1CreateHwndRenderTarget_FAIL,
-	D2D1DWriteCreateFactory_FAIL
-};
+#define kernelfunc extern "C" _declspec(dllexport) auto __stdcall
 
 namespace Kernel1
 {
+	enum Kernel1_Errors
+	{
+		D2D1_CREATE_FACTORY_ERROR = 1,
+		D2D1_CREATE_HWNDRENDERTARGET_ERROR,
+		D2D1_CREATE_DWRITEFACTORY_ERROR,
+		RGBA_COLOR_ERROR,
+		DWRITE_TEXTFORMAT_ERROR,
+		DWRITE_ALIGNMENT_ERROR,
+		ID2D1_PATHGEOMETRY_ERROR,
+		ID2D1_GEOMETRYSINK_OPEN_ERROR,
+		ID2D1_GEOMETRYSINK_CLOSE_ERROR,
+		WINNT_HWND_HADLE_ERROR,
+		D2D1_ENDDRAW_ERROR,
+		SPRITE_FILENAME_ERROR,
+		SPRITE_INSTANCE_ERROR,
+		SPRITE_FACTORY_ERROR,
+		SPRITE_DECODER_ERROR,
+		SPRITE_CONVERTER_ERROR,
+		D2D1_DEVCONTEXT_ERROR,
+		D2D1_EFFECT_ERROR,
+		D2D1_DEVCONTEXT_ENDDRAW_ERROR
+	};
 	namespace Graphics
 	{
 		class PointersLibrary
@@ -48,8 +64,75 @@ namespace Kernel1
 			ID2D1HwndRenderTarget* renderTarget;
 			HWND targetWindow;
 		};
+		struct RW_ERROR
+		{
+			RW_ERROR() :
+				errcode(0),
+				definition(L""),
+				header(L""),
+				showMsgBox(0),
+				dropProcess(0),
+				msgBoxType(0)
+			{
+
+			}
+			RW_ERROR(int code, std::wstring def, bool msgbox, bool drop = true) :
+				errcode(code),
+				showMsgBox(msgbox),
+				dropProcess(drop)
+			{
+				this->createDefinition(errcode, def);
+				if (showMsgBox) throwMsgBox();
+			}
+			~RW_ERROR()
+			{
+				memset(this, 0, sizeof(*this));
+			}
+			void createDefinition(int code, std::wstring def)
+			{
+				try
+				{
+					this->definition.clear();
+					std::wstring out = L"Во время работы движка произошла ошибка. ";
+					out += L"Процесс был немедленно остановлен.\n";
+					out += L"Отладочная информация:\n";
+					out += (L"Код ошибки: " + std::to_wstring(code) + L"\n");
+					out += (L"Комментарий: " + def + L"\n");
+					out += L"----  ----  ----  ----\n";
+					out += L"Нажмите ОК, чтобы закрыть окно.";
+					this->definition = out;
+					out.erase();
+				}
+				catch (std::exception &exc)
+				{
+					MessageBoxA(NULL, exc.what(), "Двойная критическая ошибка", msgBoxType);
+					if (dropProcess) exit(errcode);
+				}
+			}
+			void throwMsgBox()
+			{
+				if (dropProcess)
+				{
+					header = L"Уведомление о критической ошибке";
+					msgBoxType = MB_OK | MB_ICONERROR | MB_TASKMODAL | MB_SETFOREGROUND;
+				}
+				else
+				{
+					header = L"Уведомление о некритической ошибке";
+					msgBoxType = MB_OK | MB_ICONWARNING;
+				}
+				MessageBox(NULL, definition.c_str(), header.c_str(), msgBoxType);
+				if (dropProcess) exit(errcode);
+			}
+			int errcode;
+			std::wstring definition;
+			std::wstring header;
+			bool showMsgBox;
+			bool dropProcess;
+			long msgBoxType;
+		};
 		_declspec(selectany) PointersLibrary* pLib;
-		extern "C" _declspec(dllexport) void __stdcall K1_GraphicsInitialize
+		kernelfunc K1_GraphicsInitialize
 		(
 			ID2D1Factory* &factory,
 			IDWriteFactory* &wFactory,
@@ -96,36 +179,69 @@ namespace Kernel1
 					}
 					else
 					{
-						auto except_str = L"DWriteCreateFactory(...) function failed.\nProcess will be immediately terminated.";
-						MessageBox(0, except_str, L"Kernel1 Module Error!", MB_OK | MB_ICONHAND | MB_APPLMODAL);
+						auto errorcode = Kernel1::Kernel1_Errors::D2D1_CREATE_DWRITEFACTORY_ERROR;
+						std::wstring definition = L"Kernel1 Module >> DWriteCreateFactory(...) function failed: " + std::to_wstring(hr);
+						definition += L".\nProcess will be immediately terminated.";
+						RW_ERROR err(errorcode, definition, true, false);
 						delete pLib;
-						exit(Kernel1_Errors::D2D1DWriteCreateFactory_FAIL);
+						exit(Kernel1::Kernel1_Errors::D2D1_CREATE_DWRITEFACTORY_ERROR);
 					}
 				}
 				else
 				{
-					auto except_str = L"D2D1CreateHwndRenderTarget(...) function failed.\nProcess will be immediately terminated.";
-					MessageBox(0, except_str, L"Kernel1 Module Error!", MB_OK | MB_ICONHAND | MB_APPLMODAL);
+					auto errorcode = Kernel1::Kernel1_Errors::D2D1_CREATE_HWNDRENDERTARGET_ERROR;
+					std::wstring definition = L"Kernel1 Module >> D2D1CreateHwndRenderTarget(...) function failed: " + std::to_wstring(hr);
+					definition += L".\nProcess will be immediately terminated.";
+					RW_ERROR err(errorcode, definition, true, false);
 					delete pLib;
-					exit(Kernel1_Errors::D2D1CreateHwndRenderTarget_FAIL);
+					exit(Kernel1::Kernel1_Errors::D2D1_CREATE_HWNDRENDERTARGET_ERROR);
 				}
 			}
 			else
 			{
-				auto except_str = L"D2D1CreateFactory(...) function failed.\nProcess will be immediately terminated.";
-				MessageBox(0, except_str, L"Kernel1 Module Error!", MB_OK | MB_ICONHAND | MB_APPLMODAL);
+				auto errorcode = Kernel1::Kernel1_Errors::D2D1_CREATE_FACTORY_ERROR;
+				std::wstring definition = L"Kernel1 Module >> D2D1CreateFactory(...) function failed: " + std::to_wstring(hr);
+				definition += L".\nProcess will be immediately terminated.";
+				RW_ERROR err(errorcode, definition, true, false);
 				delete pLib;
-				exit(Kernel1_Errors::D2D1CreateFactory_FAIL);
+				exit(Kernel1::Kernel1_Errors::D2D1_CREATE_FACTORY_ERROR);
 			}
 		}
-		extern "C" _declspec(dllexport) void __stdcall K1_GraphicsUninitialize()
+		kernelfunc K1_GraphicsUninitialize()
 		{
 			delete pLib;
 		}
-		extern "C" _declspec(dllexport) ID2D1HwndRenderTarget* __stdcall K1_GraphicsGetRenderTarget()
+		kernelfunc K1_GraphicsGetRenderTarget()
 		{
 			return GET(renderTarget);
 		}
+		kernelfunc K1_GetHwnd()
+		{
+			return GET(targetWindow);
+		}
+		kernelfunc K1_BeginDraw()
+		{
+			GET(renderTarget)->BeginDraw();
+		}
+		kernelfunc K1_EndDraw()
+		{
+			HRESULT hr = 0l;
+			hr = GET(renderTarget)->EndDraw();
+			if (FAILED(hr))
+			{
+				auto errorcode = Kernel1::Kernel1_Errors::D2D1_ENDDRAW_ERROR;
+				std::wstring definition = L"Kernel1 Module >> EndDraw(...) function failed: " + std::to_wstring(hr);
+				definition += L".\nProcess will be immediately terminated.";
+				RW_ERROR err(errorcode, definition, true, false);
+				delete pLib;
+				exit(Kernel1::Kernel1_Errors::D2D1_ENDDRAW_ERROR);
+			}
+		}
+		kernelfunc K1_EraseScreen()
+		{
+			GET(renderTarget)->Clear();
+		}
+
 		namespace Vector
 		{
 
